@@ -1,60 +1,80 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.fyp.controller;
 
 import com.fyp.dao.AccountDAO;
 import com.fyp.model.Account;
+import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
 
-// This annotation defines the URL pattern. 
-// Form action="LoginServlet" looks for this.
 @WebServlet(name = "LoginServlet", urlPatterns = {"/LoginServlet"})
 public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         // 1. Retrieve Form Data
-        String role = request.getParameter("role");
+        String selectedRole = request.getParameter("role"); // The role chosen in the dropdown
         String email = request.getParameter("email");
-        String pass = request.getParameter("password");
-        
-        // 2. Validate with DAO
+        String password = request.getParameter("password");
+
+        // 2. Database Validation
         AccountDAO dao = new AccountDAO();
-        Account user = dao.login(email, pass);
-        
+        Account user = dao.login(email, password); // Returns null if not found
+
         // 3. Logic Flow
         if (user != null) {
-            // Check if the role matches what they selected (Security Check)
-            if (user.getRoleType().equalsIgnoreCase(role)) {
+            
+            // --- CHECK 1: Does the user exist? YES. ---
+            
+            // --- CHECK 2: Did they select the correct role? ---
+            // Compares the role in Database (user.getRoleType()) with the form (selectedRole)
+            if (user.getRoleType().equalsIgnoreCase(selectedRole)) {
+
+                // --- LOGIN SUCCESS ---
                 
-                // LOGIN SUCCESS: Create Session
+                // Create Session
                 HttpSession session = request.getSession();
-                session.setAttribute("user", user); // Save full user object
-                session.setAttribute("role", role);
-                
-                // Redirect to appropriate Dashboard
-                if (role.equalsIgnoreCase("Student")) {
-                    response.sendRedirect("StudentDashboardServlet");
-                } else if (role.equalsIgnoreCase("Supervisor")) {
-                    response.sendRedirect("SupervisorDashboardServlet");
+                session.setAttribute("user", user);      // Store the whole object
+                session.setAttribute("role", selectedRole); // Store the role for easy checks
+
+                // Redirect to the specific Folder + JSP
+                if (selectedRole.equalsIgnoreCase("Student")) {
+                    // Go to: /FYP_Tracker/student/student_dashboard.jsp
+                    response.sendRedirect("student/student_dashboard.jsp");
+                    
+                } else if (selectedRole.equalsIgnoreCase("Supervisor")) {
+                    // Go to: /FYP_Tracker/supervisor/supervisor_dashboard.jsp
+                    response.sendRedirect("supervisor/supervisor_dashboard.jsp");
+                } 
+                else {
+                    // Fallback for unexpected roles
+                    response.sendRedirect("index.html");
                 }
+
             } else {
-                // Role mismatch
-                response.sendRedirect("index.html?error=1");
+                // --- ROLE MISMATCH ---
+                // User exists, but tried to log in as the wrong role
+                request.setAttribute("errorMessage", "Role mismatch! You are registered as a " + user.getRoleType());
+                request.getRequestDispatcher("login.jsp").forward(request, response);
             }
+
         } else {
-            // LOGIN FAILED
-            response.sendRedirect("index.html?error=1");
+            // --- LOGIN FAILED ---
+            // Invalid Email or Password
+            request.setAttribute("errorMessage", "Invalid email or password.");
+            request.getRequestDispatcher("login.jsp").forward(request, response);
         }
+    }
+    
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // If someone tries to access /LoginServlet directly, send them to login page
+        response.sendRedirect("login.jsp");
     }
 }

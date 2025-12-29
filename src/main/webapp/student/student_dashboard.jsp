@@ -65,7 +65,7 @@
         <a href="student_dashboard.jsp" class="nav-link active"><i class="bi bi-grid-fill me-2"></i> Dashboard</a>
         <a href="create_project.jsp" class="nav-link"><i class="bi bi-folder-fill me-2"></i> My Project</a>
         <a href="milestones.jsp" class="nav-link"><i class="bi bi-list-check me-2"></i> Milestones</a>
-        <a href="profile.jsp" class="nav-link"><i class="bi bi-person-fill me-2"></i> User Profile</a>
+        <a href="../profile.jsp" class="nav-link"><i class="bi bi-person-fill me-2"></i> User Profile</a>
         <a href="feedback.jsp" class="nav-link"><i class="bi bi-chat-left-text-fill me-2"></i> Feedback</a>
         <a href="login.jsp" class="nav-link mt-5 text-danger border-top pt-3"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
     </nav>
