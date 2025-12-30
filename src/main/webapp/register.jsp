@@ -3,169 +3,203 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>FYP Tracker - User Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FYP Tracker - Create Account</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     
     <style>
-        body { background-color: #F8F9FA; font-family: 'Segoe UI', sans-serif; }
-        
-        /* Sidebar Styling */
-        .sidebar {
-            width: 250px; height: 100vh; position: fixed;
-            background-color: #FFFFFF; border-right: 1px solid #eee; padding: 20px;
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
         }
-        .sidebar-brand { font-weight: bold; font-size: 1.2rem; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
-        .nav-link {
-            color: #6C757D; padding: 10px 15px; margin-bottom: 5px; border-radius: 10px; font-weight: 500; text-decoration: none;
-        }
-        .nav-link:hover { background-color: #f1f5f9; color: #2563EB; }
-        .nav-link.active {
-            background-color: #2563EB; color: white; /* Blue Active State */
-            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
-        }
-        .nav-link i { margin-right: 10px; }
 
-        /* Main Content */
-        .main-content { margin-left: 250px; padding: 30px; }
+        .main-container {
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* --- LEFT PANEL (Blue Side) --- */
+        .left-panel {
+            background-color: #2563EB; /* Bright Blue */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .illustration-container {
+            background: rgba(255, 255, 255, 0.1); /* Subtle transparent white box behind image */
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
         
-        /* Cards */
-        .profile-card, .info-card {
-            background: white; border-radius: 15px; border: none;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        .illustration-img {
+            max-width: 80%;
+            height: auto;
+            /* Placeholder styling if image is missing */
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
         }
-        .profile-img {
-            width: 100px; height: 100px; border-radius: 50%; object-fit: cover;
-            margin-bottom: 15px; border: 3px solid #e9ecef;
+
+        .left-title { font-weight: 700; font-size: 1.8rem; margin-bottom: 10px; }
+        .left-subtitle { font-size: 0.95rem; opacity: 0.8; max-width: 350px; text-align: center; margin-bottom: 30px; line-height: 1.6; }
+
+        .feature-icons { display: flex; gap: 30px; opacity: 0.9; }
+        .feature-item { text-align: center; font-size: 0.8rem; }
+        .feature-item i { font-size: 1.5rem; display: block; margin-bottom: 5px; }
+
+        /* --- RIGHT PANEL (Form Side) --- */
+        .right-panel {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 100px; /* High padding for centered look */
         }
-        .contact-item { font-size: 0.9rem; color: #6c757d; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-        .section-title { font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 15px; }
-        .info-label { font-size: 0.85rem; color: #6c757d; }
-        .info-value { font-size: 0.95rem; font-weight: 500; color: #333; }
-        .btn-edit { background-color: #2563EB; color: white; border-radius: 8px; padding: 5px 15px; font-size: 0.9rem; transition: 0.3s;}
-        .btn-edit:hover { background-color: #1d4ed8; }
+        
+        .form-header { margin-bottom: 30px; }
+        .form-title { font-weight: 700; font-size: 2rem; color: #333; }
+        .form-subtitle { color: #6c757d; font-size: 0.95rem; }
+
+        /* Input Styling to match your image */
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        
+        .custom-input {
+            background-color: #F3F4F6; /* Light Gray Background */
+            border: 1px solid transparent;
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 0.95rem;
+            transition: 0.3s;
+        }
+        
+        .custom-input:focus {
+            background-color: #fff;
+            border-color: #2563EB;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-primary-custom {
+            background-color: #2563EB;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn-primary-custom:hover { background-color: #1d4ed8; }
+
+        .bottom-link { text-align: center; margin-top: 20px; font-size: 0.9rem; color: #6c757d; }
+        .bottom-link a { color: #2563EB; text-decoration: none; font-weight: 600; }
+        .bottom-link a:hover { text-decoration: underline; }
+
+        /* Responsive Fixes */
+        @media (max-width: 992px) {
+            .right-panel { padding: 40px; }
+        }
+        @media (max-width: 768px) {
+            .left-panel { display: none; } /* Hide left panel on mobile */
+            .right-panel { padding: 30px; }
+        }
     </style>
-
-    <script>
-        function handleEdit() {
-            // Simple interaction to simulate editing
-            const newName = prompt("Edit Full Name:", "Sir Lewis");
-            if (newName) {
-                document.getElementById("userNameDisplay").innerText = newName;
-                document.getElementById("mainNameDisplay").innerText = newName;
-                alert("Profile updated successfully!");
-            }
-        }
-    </script>
 </head>
 <body>
 
-<div class="sidebar">
-    <div class="sidebar-brand text-primary">
-        <i class="bi bi-mortarboard-fill"></i> FYP Tracker
-    </div>
-    <nav class="nav flex-column">
-        <a href="student_dashboard.jsp" class="nav-link"><i class="bi bi-grid-fill"></i> Dashboard</a>
+<div class="container-fluid p-0">
+    <div class="row g-0 main-container">
         
-        <a href="create_project.jsp" class="nav-link"><i class="bi bi-folder-fill"></i> My Project</a>
-        
-        <a href="milestones.jsp" class="nav-link"><i class="bi bi-list-check"></i> Milestones</a>
-        
-        <a href="profile.jsp" class="nav-link active"><i class="bi bi-person-fill"></i> User Profile</a>
-        
-        <a href="feedback.jsp" class="nav-link"><i class="bi bi-chat-left-text-fill"></i> Feedback</a>
-        
-        <a href="login.jsp" class="nav-link mt-5 text-danger border-top pt-3">
-            <i class="bi bi-box-arrow-right"></i> Logout
-        </a>
-    </nav>
-</div>
-
-<div class="main-content">
-    <h3 class="fw-bold mb-4">User Profile</h3>
-    
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card profile-card p-4 h-100">
-                <div class="text-center">
-                    <img src="https://ui-avatars.com/api/?name=Sir+Lewis&background=random" class="profile-img" alt="Profile">
-                    <h5 class="fw-bold mb-0" id="userNameDisplay">Sir Lewis</h5>
-                    <p class="text-primary small">Student</p>
-                    <p class="text-muted small">Universiti Teknologi MARA</p>
+        <div class="col-lg-6 left-panel">
+            <div class="illustration-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" class="illustration-img" alt="Illustration" width="250">
+            </div>
+            
+            <h2 class="left-title">Academic Dashboard</h2>
+            <p class="left-subtitle">Streamline your academic journey with our comprehensive management platform.</p>
+            
+            <div class="feature-icons">
+                <div class="feature-item">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Analytics</span>
                 </div>
-                
-                <hr class="my-4">
-                
-                <div class="contact-info">
-                    <div class="contact-item"><i class="bi bi-envelope"></i> lewis.hamilton@student.uitm.edu.my</div>
-                    <div class="contact-item"><i class="bi bi-telephone"></i> 173123332213</div>
-                    <div class="contact-item"><i class="bi bi-geo-alt"></i> Shah Alam, Malaysia</div>
-                    <div class="contact-item"><i class="bi bi-calendar"></i> Joined March 2024</div>
+                <div class="feature-item">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Collaboration</span>
                 </div>
-
-                <hr class="my-4">
-
-                <div class="section-title">Quick Stats</div>
-                <div class="p-3 bg-light rounded mb-2 border-start border-4 border-primary">
-                    <small class="text-muted d-block">Projects</small>
-                    <span class="fw-bold text-dark">1 Active</span>
-                </div>
-                <div class="p-3 bg-light rounded mb-2 border-start border-4 border-success">
-                    <small class="text-muted d-block">Milestones</small>
-                    <span class="fw-bold text-dark">24 Completed</span>
+                <div class="feature-item">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    <span>Learning</span>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-8">
-            <div class="card info-card p-4 h-100">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold mb-0">Profile Information</h5>
-                    <button class="btn btn-edit border-0" onclick="handleEdit()">Edit Profile</button>
-                </div>
-
-                <div class="section-title text-secondary">Personal Information</div>
-                <div class="row mb-4">
-                    <div class="col-md-6 mb-3">
-                        <div class="info-label">Full Name</div>
-                        <div class="info-value" id="mainNameDisplay">Sir Lewis</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="info-label">Student ID</div>
-                        <div class="info-value">2023123456</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="info-label">Email</div>
-                        <div class="info-value">lewis@student.uitm.edu.my</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="info-label">Phone Number</div>
-                        <div class="info-value">012-3456789</div>
-                    </div>
-                </div>
-
-                <hr>
-
-                <div class="section-title text-secondary mt-3">Academic Information</div> 
-                <div class="row mb-4">
-                    <div class="col-md-6 mb-3">
-                        <div class="info-label">Faculty</div>
-                        <div class="info-value">Faculty of Computer & Mathematical Sciences</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="info-label">Program Code</div>
-                        <div class="info-value">CS230</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="info-label">Specialization</div>
-                        <div class="info-value">Computer Science (Machine Learning)</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="info-label">Education Type</div>
-                        <div class="info-value">Bachelor's Degree</div>
-                    </div>
-                </div>
+        <div class="col-lg-6 right-panel">
+            
+            <div class="form-header">
+                <h1 class="form-title">Create Account</h1>
+                <p class="form-subtitle">Sign up to access your dashboard</p>
             </div>
+
+            <% 
+                String error = (String) request.getAttribute("errorMessage");
+                if (error != null) {
+            %>
+                <div class="alert alert-danger py-2 mb-3" role="alert" style="font-size: 0.9rem;">
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <form action="RegisterServlet" method="POST">
+                
+                <div class="mb-3">
+                    <label class="form-label">Register as</label>
+                    <select name="role" class="form-select custom-input" required>
+                        <option value="Student" selected>Student</option>
+                        <option value="Supervisor">Supervisor</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="name" class="form-control custom-input" placeholder="Enter your name" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" name="email" class="form-control custom-input" placeholder="Enter your email" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" name="phone" class="form-control custom-input" placeholder="Enter your phone number" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control custom-input" placeholder="Create a password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary-custom">
+                    Sign Up <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+
+                <div class="bottom-link">
+                    Already have an account? <a href="login.jsp">Sign in</a>
+                </div>
+
+            </form>
         </div>
     </div>
 </div>
