@@ -1,4 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="jakarta.tags.core" %> <%@page import="java.util.List"%>
+<%@page import="com.fyp.model.Project"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -62,11 +64,19 @@
         <i class="bi bi-mortarboard-fill"></i> FYP Tracker
     </div>
     <nav class="nav flex-column">
-        <a href="supervisor_dashboard.jsp" class="nav-link"><i class="bi bi-grid-fill me-2"></i> Dashboard</a>
-        <a href="student_list.jsp" class="nav-link active"><i class="bi bi-people-fill me-2"></i> Student</a>
-        <a href="supervisor_milestone.jsp" class="nav-link"><i class="bi bi-list-check me-2"></i> Track Milestone</a>
-        <a href="profile.jsp" class="nav-link"><i class="bi bi-person-fill me-2"></i> Profile</a>
-        <a href="login.jsp" class="nav-link mt-5 text-danger border-top pt-3"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
+        <a href="SupervisorDashboardServlet" class="nav-link">
+            <i class="bi bi-grid-fill me-2"></i> Dashboard
+        </a>
+        <a href="StudentListServlet" class="nav-link active">
+            <i class="bi bi-people-fill me-2"></i> Student
+        </a>
+        <a href="SupervisorMilestoneServlet" class="nav-link">
+            <i class="bi bi-list-check me-2"></i> Track Milestone
+        </a>
+        <a href="../profile.jsp" class="nav-link"><i class="bi bi-person-fill me-2"></i> Profile</a>
+        <a href="../logout.jsp" class="nav-link mt-5 text-danger border-top pt-3">
+            <i class="bi bi-box-arrow-right me-2"></i> Logout
+        </a>
     </nav>
 </div>
 
@@ -84,67 +94,35 @@
 
     <div class="row row-cols-1 row-cols-md-2 g-4">
         
+        <%
+            List<Project> list = (List<Project>) request.getAttribute("projectList");
+            if(list != null) {
+                for(Project p : list) {
+        %>
         <div class="col">
-            <div class="project-card" onclick="viewStudentDetails('MUHAMAD AIMAN')">
-                <span class="card-dates">10/12/2025 - 03/03/2026</span>
-                <h6 class="fw-bold mb-1">AI-Powered Chatbot for Customer Service</h6>
-                <span class="card-type">Machine Learning • Final Year Project</span>
+            <div class="project-card" onclick="location.href='SupervisorMilestoneServlet?studentId=<%= p.getStudentId() %>'">
+                <span class="card-dates"><%= p.getStartDate() %> - <%= p.getEndDate() %></span>
+                
+                <h6 class="fw-bold mb-1"><%= p.getTitle() %></h6>
+                
+                <span class="card-type">
+                    <%= (p.getCategoryName() != null) ? p.getCategoryName() : "General" %> • Final Year Project
+                </span>
                 
                 <p class="small text-muted mt-2 mb-3">
-                    Developed an intelligent chatbot using NLP and deep learning to automate customer support responses.
+                    <%= (p.getDescription().length() > 100) ? p.getDescription().substring(0, 100) + "..." : p.getDescription() %>
                 </p>
                 <hr>
-                <div class="student-name">MUHAMAD AIMAN HAMIN</div>
-                <div class="student-id">202382838 | +601828181</div>
+                <div class="student-name"><%= p.getStudentName() %></div>
+                <div class="student-id"><%= p.getStudentId() %> | <%= p.getStudentPhone() %></div>
             </div>
         </div>
-
-        <div class="col">
-            <div class="project-card" onclick="viewStudentDetails('SITI SARAH')">
-                <span class="card-dates">01/11/2025 - 01/02/2026</span>
-                <h6 class="fw-bold mb-1">IoT Smart Farming System</h6>
-                <span class="card-type">IoT • Final Year Project</span>
-                
-                <p class="small text-muted mt-2 mb-3">
-                    A system monitoring soil moisture and temperature to automate irrigation processes.
-                </p>
-                <hr>
-                <div class="student-name">SITI SARAH BINTI ALI</div>
-                <div class="student-id">202345678 | +601234567</div>
-            </div>
+        <%      } 
+            } else { 
+        %>
+            <p>No projects assigned yet.</p>
+        <% } %>
         </div>
-
-        <div class="col">
-            <div class="project-card" onclick="viewStudentDetails('AHMAD ALI')">
-                <span class="card-dates">10/12/2025 - 03/03/2026</span>
-                <h6 class="fw-bold mb-1">E-Commerce Recommendation Engine</h6>
-                <span class="card-type">Data Science • Final Year Project</span>
-                
-                <p class="small text-muted mt-2 mb-3">
-                    Collaborative filtering algorithm to suggest products to users based on browsing history.
-                </p>
-                <hr>
-                <div class="student-name">AHMAD ALI BIN BAKAR</div>
-                <div class="student-id">202311223 | +601988776</div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="project-card" onclick="viewStudentDetails('NURUL IZZAH')">
-                <span class="card-dates">15/01/2026 - 15/05/2026</span>
-                <h6 class="fw-bold mb-1">Blockchain for Medical Records</h6>
-                <span class="card-type">Blockchain • Final Year Project</span>
-                
-                <p class="small text-muted mt-2 mb-3">
-                    Secure decentralized storage for patient medical records using Ethereum blockchain.
-                </p>
-                <hr>
-                <div class="student-name">NURUL IZZAH BINTI OMAR</div>
-                <div class="student-id">202399887 | +601777665</div>
-            </div>
-        </div>
-
-    </div>
 </div>
 
 </body>

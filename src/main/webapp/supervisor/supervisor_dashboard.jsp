@@ -1,4 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="java.util.List"%>
+<%@page import="com.fyp.model.Project"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,11 +48,25 @@
         <i class="bi bi-mortarboard-fill"></i> FYP Tracker
     </div>
     <nav class="nav flex-column">
-        <a href="supervisor_dashboard.jsp" class="nav-link active"><i class="bi bi-grid-fill me-2"></i> Dashboard</a>
-        <a href="student_list.jsp" class="nav-link"><i class="bi bi-people-fill me-2"></i> Student</a>
-        <a href="supervisor_milestone.jsp" class="nav-link"><i class="bi bi-list-check me-2"></i> Track Milestone</a>
-        <a href="profile.jsp" class="nav-link"><i class="bi bi-person-fill me-2"></i> Profile</a>
-        <a href="login.jsp" class="nav-link mt-5 text-danger border-top pt-3"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
+    <a href="SupervisorDashboardServlet" class="nav-link active">
+        <i class="bi bi-grid-fill me-2"></i> Dashboard
+    </a>
+    
+    <a href="StudentListServlet" class="nav-link">
+        <i class="bi bi-people-fill me-2"></i> Student
+    </a>
+    
+    <a href="SupervisorMilestoneServlet" class="nav-link">
+        <i class="bi bi-list-check me-2"></i> Track Milestone
+    </a>
+    
+    <a href="profile.jsp" class="nav-link">
+        <i class="bi bi-person-fill me-2"></i> Profile
+    </a>
+    
+        <a href="logout.jsp" class="nav-link mt-5 text-danger border-top pt-3">
+            <i class="bi bi-box-arrow-right me-2"></i> Logout
+        </a>
     </nav>
 </div>
 
@@ -59,94 +75,38 @@
     
     <div class="row g-3 mb-4">
         <div class="col-md-3">
-            <div class="stat-card" onclick="location.href='supervisor_milestone.jsp'">
+            <div class="stat-card">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h3 class="fw-bold mb-0">120/450</h3>
-                        <small class="text-muted">Total Milestones</small>
-                    </div>
-                    <div class="bg-light rounded p-2 text-primary"><i class="bi bi-list-task fs-4"></i></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card" onclick="location.href='student_list.jsp'">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h3 class="fw-bold mb-0 text-warning">12</h3>
+                        <h3 class="fw-bold mb-0 text-warning">${totalStudents}</h3>
                         <small class="text-muted">Active Students</small>
                     </div>
                     <div class="bg-light rounded p-2 text-warning"><i class="bi bi-people fs-4"></i></div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h3 class="fw-bold mb-0 text-success">14/22</h3>
-                        <small class="text-muted">On Track</small>
-                    </div>
-                    <div class="bg-light rounded p-2 text-success"><i class="bi bi-check-circle fs-4"></i></div>
-                </div>
-            </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h3 class="fw-bold mb-0 text-danger">2</h3>
-                        <small class="text-muted">Projects Delayed</small>
-                    </div>
-                    <div class="bg-light rounded p-2 text-danger"><i class="bi bi-flag fs-4"></i></div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="row g-4">
-        <div class="col-md-6">
-            <div class="stat-card" style="cursor: default;">
-                <h5 class="fw-bold mb-4">Student Progress</h5>
-                
-                <div class="student-row mb-2">
-                    <div class="d-flex justify-content-between mb-1"><span class="fw-bold">Muhamad Aiman</span> <span class="small text-muted">60%</span></div>
-                    <div class="progress"><div class="progress-bar" style="width: 60%"></div></div>
-                </div>
-                <div class="student-row mb-2">
-                    <div class="d-flex justify-content-between mb-1"><span class="fw-bold">Siti Sarah</span> <span class="small text-muted">40%</span></div>
-                    <div class="progress"><div class="progress-bar bg-warning" style="width: 40%"></div></div>
-                </div>
-                <div class="student-row mb-2">
-                    <div class="d-flex justify-content-between mb-1"><span class="fw-bold">Ahmad Ali</span> <span class="small text-muted">75%</span></div>
-                    <div class="progress"><div class="progress-bar bg-success" style="width: 75%"></div></div>
-                </div>
-                <div class="student-row mb-2">
-                    <div class="d-flex justify-content-between mb-1"><span class="fw-bold">Nurul Izzah</span> <span class="small text-muted">90%</span></div>
-                    <div class="progress"><div class="progress-bar bg-success" style="width: 90%"></div></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
+        <div class="col-md-12">
             <div class="stat-card" style="cursor: default;">
                 <h5 class="fw-bold mb-4">Student Status</h5>
                 
+                <%
+                    List<Project> list = (List<Project>) request.getAttribute("projectList");
+                    if(list != null) {
+                        for(Project p : list) {
+                            String badgeClass = "bg-progress"; // Default blue
+                            if("Completed".equalsIgnoreCase(p.getStatus())) badgeClass = "bg-completed"; // Green
+                            if("Pending".equalsIgnoreCase(p.getStatus())) badgeClass = "bg-delay"; // Red
+                %>
                 <div class="d-flex justify-content-between align-items-center mb-3 p-2 border-bottom">
-                    <span class="fw-bold">Muhamad Aiman</span> <span class="status-badge bg-progress">In Progress</span>
+                    <span class="fw-bold"><%= p.getStudentName() %></span> 
+                    <span class="status-badge <%= badgeClass %>"><%= p.getStatus() %></span>
                 </div>
-                <div class="d-flex justify-content-between align-items-center mb-3 p-2 border-bottom">
-                    <span class="fw-bold">Ahmad Ali</span> <span class="status-badge bg-progress">In Progress</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-3 p-2 border-bottom">
-                    <span class="fw-bold">Siti Sarah</span> <span class="status-badge bg-delay">Delay</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-3 p-2 border-bottom">
-                    <span class="fw-bold">John Doe</span> <span class="status-badge bg-delay">Delay</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-3 p-2 border-bottom">
-                    <span class="fw-bold">Nurul Izzah</span> <span class="status-badge bg-completed">Completed</span>
-                </div>
+                <%      }
+                    }
+                %>
             </div>
         </div>
     </div>

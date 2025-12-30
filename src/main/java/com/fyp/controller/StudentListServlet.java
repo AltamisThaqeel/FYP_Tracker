@@ -16,8 +16,8 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "SupervisorDashboardServlet", urlPatterns = {"/SupervisorDashboardServlet"})
-public class SupervisorDashboardServlet extends HttpServlet {
+@WebServlet(name = "StudentListServlet", urlPatterns = {"/StudentListServlet"})
+public class StudentListServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -26,30 +26,23 @@ public class SupervisorDashboardServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Account user = (Account) session.getAttribute("user");
         
+        // Security Check
         if (user == null || !user.getRoleType().equalsIgnoreCase("Supervisor")) {
             response.sendRedirect("login.jsp");
             return;
         }
 
+        // 1. Fetch Projects using the new DAO method
         SupervisorDAO dao = new SupervisorDAO();
-        int supervisorId = 1; // Hardcoded for assignment
-
-        // 1. Fetch Projects
-        List<Project> projects = dao.getProjectsWithDetails(supervisorId);
+        // Assuming Account ID maps to Supervisor ID 1-to-1 for this demo, or fetch supervisor ID from DB
+        int supervisorId = 1; 
         
-        // 2. Calculate Stats
-        int totalStudents = projects.size();
-        int completed = 0;
-        int delayed = 0;
+        List<Project> projectList = dao.getProjectsWithDetails(supervisorId);
         
-        for(Project p : projects) {
-            if("Completed".equalsIgnoreCase(p.getStatus())) completed++;
-            // Logic to determine delay can be added here based on dates
-        }
-
-        request.setAttribute("totalStudents", totalStudents);
-        request.setAttribute("projectList", projects); // Re-using the list for the "Status" table
+        // 2. Pass data to JSP
+        request.setAttribute("projectList", projectList);
         
-        request.getRequestDispatcher("supervisor/supervisor_dashboard.jsp").forward(request, response);
+        // 3. Forward to your JSP
+        request.getRequestDispatcher("supervisor/student_list.jsp").forward(request, response);
     }
 }

@@ -11,79 +11,32 @@
     
     <style>
         body, html { height: 100%; margin: 0; font-family: 'Segoe UI', sans-serif; }
-
-        /* --- Left Side Styling (Blue Panel) --- */
-        .left-panel {
-            background-color: #2563EB; /* Bright Blue */
-            color: white;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 50px;
-        }
-        
-        /* Illustration Placeholder */
-        .illustration-box {
-            background-color: #60a5fa; 
-            border-radius: 20px; 
-            width: 80%; 
-            max-width: 350px; 
-            height: 300px;
-            margin-bottom: 30px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
+        .left-panel { background-color: #2563EB; color: white; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 50px; }
+        .illustration-box { background-color: #60a5fa; border-radius: 20px; width: 80%; max-width: 350px; height: 300px; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .feature-icons i { font-size: 1.5rem; margin: 0 15px; opacity: 0.8; }
         .feature-text { font-size: 0.8rem; margin-top: 5px; opacity: 0.8; }
-
-        /* --- Right Side Styling (Form) --- */
-        .right-panel {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #ffffff;
-        }
-
+        .right-panel { height: 100vh; display: flex; align-items: center; justify-content: center; background-color: #ffffff; }
         .login-container { width: 100%; max-width: 400px; padding: 20px; }
-
-        .form-control, .form-select {
-            background-color: #F3F4F6; /* Light gray inputs */
-            border: 1px solid transparent;
-            height: 50px;
-            border-radius: 8px;
-            padding-left: 15px;
-            transition: all 0.3s;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            background-color: white;
-            border-color: #2563EB;
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-        }
-
-        .btn-primary {
-            background-color: #2563EB;
-            border: none;
-            height: 50px;
-            border-radius: 8px;
-            font-weight: 600;
-            width: 100%;
-            transition: background 0.3s;
-        }
-
+        .form-control, .form-select { background-color: #F3F4F6; border: 1px solid transparent; height: 50px; border-radius: 8px; padding-left: 15px; transition: all 0.3s; }
+        .form-control:focus, .form-select:focus { background-color: white; border-color: #2563EB; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+        .btn-primary { background-color: #2563EB; border: none; height: 50px; border-radius: 8px; font-weight: 600; width: 100%; transition: background 0.3s; }
         .btn-primary:hover { background-color: #1d4ed8; }
         .forgot-link { font-size: 0.9rem; text-decoration: none; color: #2563EB; }
     </style>
 </head>
 <body>
+
+<%
+    String savedEmail = "";
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+        for (Cookie c : cookies) {
+            if (c.getName().equals("c_email")) {
+                savedEmail = c.getValue();
+            }
+        }
+    }
+%>
 
 <div class="container-fluid">
     <div class="row">
@@ -99,18 +52,9 @@
             </p>
 
             <div class="d-flex justify-content-center mt-5 feature-icons">
-                <div class="text-center">
-                    <i class="bi bi-graph-up"></i>
-                    <div class="feature-text">Analytics</div>
-                </div>
-                <div class="text-center">
-                    <i class="bi bi-people-fill"></i>
-                    <div class="feature-text">Collaboration</div>
-                </div>
-                <div class="text-center">
-                    <i class="bi bi-mortarboard-fill"></i>
-                    <div class="feature-text">Learning</div>
-                </div>
+                <div class="text-center"><i class="bi bi-graph-up"></i><div class="feature-text">Analytics</div></div>
+                <div class="text-center"><i class="bi bi-people-fill"></i><div class="feature-text">Collaboration</div></div>
+                <div class="text-center"><i class="bi bi-mortarboard-fill"></i><div class="feature-text">Learning</div></div>
             </div>
         </div>
 
@@ -120,6 +64,16 @@
                     <h2 class="fw-bold">Welcome Back</h2>
                     <p class="text-muted">Sign in to access your dashboard</p>
                 </div>
+
+                <% 
+                    String msg = request.getParameter("msg");
+                    if (msg != null && msg.equals("registered")) {
+                %>
+                    <div class="alert alert-success d-flex align-items-center" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <div>Registration complete! Please login.</div>
+                    </div>
+                <% } %>
 
                 <form action="${pageContext.request.contextPath}/LoginServlet" method="POST">
                     
@@ -133,7 +87,9 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-secondary">EMAIL ADDRESS</label>
-                        <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
+                        <input type="email" name="email" class="form-control" 
+                               placeholder="Enter your email" 
+                               value="<%= savedEmail %>" required>
                     </div>
 
                     <div class="mb-3">
@@ -143,7 +99,8 @@
 
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="rememberMe">
+                            <input class="form-check-input" type="checkbox" name="remember" id="rememberMe" 
+                                   <%= !savedEmail.isEmpty() ? "checked" : "" %>>
                             <label class="form-check-label small text-muted" for="rememberMe">Remember me</label>
                         </div>
                         <a href="#" class="forgot-link">Forgot Password?</a>

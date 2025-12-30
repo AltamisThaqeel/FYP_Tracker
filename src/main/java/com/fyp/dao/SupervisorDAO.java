@@ -49,4 +49,72 @@ public class SupervisorDAO {
         }
         return list;
     }
+    
+    // ADD THIS NEW METHOD FOR REGISTRATION:
+    public void registerSupervisor(String phone, int accountId) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        try {
+            con = DBConnection.getConnection();
+            
+            // Insert new Supervisor
+            String sql = "INSERT INTO SUPERVISOR (phoneNum, position, accountid) VALUES (?, 'Lecturer', ?)";
+            
+            ps = con.prepareStatement(sql);
+            ps.setString(1, phone);
+            ps.setInt(2, accountId);
+            
+            ps.executeUpdate();
+            
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        } finally {
+            try { if(ps!=null)ps.close(); if(con!=null)con.close(); } catch(Exception e){}
+        }
+    }
+    
+    // Get Projects WITH Student and Category Details
+    public List<Project> getProjectsWithDetails(int supervisorId) {
+        List<Project> list = new ArrayList<>();
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        try {
+            con = DBConnection.getConnection();
+            // SQL JOIN to get names instead of just IDs
+            String sql = "SELECT p.*, s.student_name, s.phoneNum, c.category_name " +
+                         "FROM PROJECT p " +
+                         "JOIN STUDENT s ON p.studentid = s.studentid " +
+                         "LEFT JOIN PROJECT_CATEGORY c ON p.categoryid = c.categoryid " +
+                         "WHERE p.supervisorid = ?";
+            
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, supervisorId);
+            rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                Project p = new Project();
+                p.setProjectId(rs.getInt("projectid"));
+                p.setTitle(rs.getString("project_title"));
+                p.setDescription(rs.getString("project_desc"));
+                p.setStartDate(rs.getDate("start_date"));
+                p.setEndDate(rs.getDate("end_date"));
+                p.setStatus(rs.getString("project_status"));
+                p.setStudentId(rs.getString("studentid"));
+                
+                // Set the new display fields
+                p.setStudentName(rs.getString("student_name")); // Ensure STUDENT table has 'student_name' column
+                p.setStudentPhone(rs.getString("phoneNum"));
+                p.setCategoryName(rs.getString("category_name"));
+                
+                list.add(p);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try { if(rs!=null)rs.close(); if(ps!=null)ps.close(); if(con!=null)con.close(); } catch(Exception e){}
+        }
+        return list;
+    }
 }

@@ -15,6 +15,9 @@ public class Project {
     private String status;
     private String studentId; 
     private int supervisorId;
+    private String studentName;
+    private String studentPhone;
+    private String categoryName;
 
     public Project() {}
 
@@ -42,4 +45,13 @@ public class Project {
 
     public int getSupervisorId() { return supervisorId; }
     public void setSupervisorId(int supervisorId) { this.supervisorId = supervisorId; }
+    
+    public String getStudentName() { return studentName; }
+    public void setStudentName(String studentName) { this.studentName = studentName; }
+
+    public String getStudentPhone() { return studentPhone; }
+    public void setStudentPhone(String studentPhone) { this.studentPhone = studentPhone; }
+
+    public String getCategoryName() { return categoryName; }
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
 }

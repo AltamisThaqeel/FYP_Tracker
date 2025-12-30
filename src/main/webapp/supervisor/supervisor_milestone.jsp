@@ -31,17 +31,10 @@
     <script>
         function searchStudent() {
             const select = document.getElementById("studentSelect");
-            const studentName = select.options[select.selectedIndex].text;
-            
-            if(select.value === "") {
-                alert("Please select a student first.");
-            } else {
-                // Simulate data loading
-                alert("Loading milestones for: " + studentName);
-                document.getElementById("milestoneContainer").style.opacity = "0.5";
-                setTimeout(() => {
-                    document.getElementById("milestoneContainer").style.opacity = "1";
-                }, 500);
+            const studentId = select.value;
+            if(studentId) {
+                // Reload page with selected ID
+                window.location.href = "SupervisorMilestoneServlet?studentId=" + studentId;
             }
         }
 
@@ -68,7 +61,7 @@
         <a href="supervisor_dashboard.jsp" class="nav-link"><i class="bi bi-grid-fill me-2"></i> Dashboard</a>
         <a href="student_list.jsp" class="nav-link"><i class="bi bi-people-fill me-2"></i> Student</a>
         <a href="supervisor_milestone.jsp" class="nav-link active"><i class="bi bi-list-check me-2"></i> Track Milestone</a>
-        <a href="profile.jsp" class="nav-link"><i class="bi bi-person-fill me-2"></i> Profile</a>
+        <a href="../profile.jsp" class="nav-link"><i class="bi bi-person-fill me-2"></i> Profile</a>
         <a href="login.jsp" class="nav-link mt-5 text-danger border-top pt-3"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
     </nav>
 </div>
@@ -81,9 +74,20 @@
         <div class="input-group">
             <select id="studentSelect" class="form-select border-0 bg-light">
                 <option value="">Select student</option>
-                <option value="1" selected>Muhamad Aiman Hamin</option>
-                <option value="2">Siti Sarah</option>
-                <option value="3">Ahmad Ali</option>
+                <%
+                    List<Project> students = (List<Project>) request.getAttribute("allStudents");
+                    Project selected = (Project) request.getAttribute("selectedProject");
+                    String selId = (selected != null) ? selected.getStudentId() : "";
+
+                    if(students != null) {
+                        for(Project p : students) {
+                            String isSel = p.getStudentId().equals(selId) ? "selected" : "";
+                %>
+                    <option value="<%= p.getStudentId() %>" <%= isSel %>><%= p.getStudentName() %></option>
+                <% 
+                        } 
+                    } 
+                %>
             </select>
             <button class="btn btn-primary px-4" onclick="searchStudent()">Search</button>
         </div>

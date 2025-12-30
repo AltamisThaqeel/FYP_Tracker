@@ -9,6 +9,7 @@ public class Account {
     private String email;
     private String password;
     private String roleType; // "Student" or "Supervisor"
+    private String fullName; // <--- NEW FIELD
 
     // Constructors, Getters, and Setters
     public Account() {}
@@ -28,4 +29,6 @@ public class Account {
     public void setPassword(String password) { this.password = password; }
     public String getRoleType() { return roleType; }
     public void setRoleType(String roleType) { this.roleType = roleType; }
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
 }
