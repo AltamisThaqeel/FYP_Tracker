@@ -48,6 +48,6 @@ public class StudentDashboardServlet extends HttpServlet {
         request.setAttribute("project", myProject);
         
         // 4. Forward to the JSP
-        request.getRequestDispatcher("student/dashboard.jsp").forward(request, response);
+        request.getRequestDispatcher("student/student_dashboard.jsp").forward(request, response);
     }
 }

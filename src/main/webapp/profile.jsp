@@ -1,4 +1,18 @@
+<%@page import="com.fyp.model.Account"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%
+    // 1. GET USER & ROLE FROM SESSION
+    Account user = (Account) session.getAttribute("user");
+    String role = (String) session.getAttribute("role"); // "Student" or "Supervisor"
+
+    // 2. SECURITY CHECK
+    // If no user is logged in, kick them back to the login page
+    if (user == null || role == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,12 +62,13 @@
 
     <script>
         function handleEdit() {
-            // Simple interaction to simulate editing
-            const newName = prompt("Edit Full Name:", "Sir Lewis");
+            // Note: This purely updates the interface for now.
+            // You will need an UpdateProfileServlet to save this to the database later.
+            const newName = prompt("Edit Full Name:", "<%= user.getName() %>");
             if (newName) {
                 document.getElementById("userNameDisplay").innerText = newName;
                 document.getElementById("mainNameDisplay").innerText = newName;
-                alert("Profile updated successfully!");
+                alert("Profile name updated (visual only)!");
             }
         }
     </script>
@@ -65,17 +80,24 @@
         <i class="bi bi-mortarboard-fill"></i> FYP Tracker
     </div>
     <nav class="nav flex-column">
-        <a href="../student_dashboard.jsp" class="nav-link"><i class="bi bi-grid-fill"></i> Dashboard</a>
         
-        <a href="../create_project.jsp" class="nav-link"><i class="bi bi-folder-fill"></i> My Project</a>
+        <%-- SCENARIO: STUDENT IS LOGGED IN --%>
+        <% if ("Student".equalsIgnoreCase(role)) { %>
+            <a href="student/student_dashboard.jsp" class="nav-link"><i class="bi bi-grid-fill"></i> Dashboard</a>
+            <a href="student/create_project.jsp" class="nav-link"><i class="bi bi-folder-fill"></i> My Project</a>
+            <a href="student/milestones.jsp" class="nav-link"><i class="bi bi-list-check"></i> Milestones</a>
         
-        <a href="../milestones.jsp" class="nav-link"><i class="bi bi-list-check"></i> Milestones</a>
+        <%-- SCENARIO: SUPERVISOR IS LOGGED IN --%>
+        <% } else if ("Supervisor".equalsIgnoreCase(role)) { %>
+            <a href="supervisor/supervisor_dashboard.jsp" class="nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="supervisor/student_list.jsp" class="nav-link"><i class="bi bi-people-fill"></i> My Students</a>
+            <a href="supervisor/supervisor_milestone.jsp" class="nav-link"><i class="bi bi-check-circle-fill"></i> Approvals</a>
+        <% } %>
+
+        <a href="profile.jsp" class="nav-link active"><i class="bi bi-person-fill"></i> User Profile</a>
+        <a href="feedback.jsp" class="nav-link"><i class="bi bi-chat-left-text-fill"></i> Feedback</a>
         
-        <a href="../profile.jsp" class="nav-link active"><i class="bi bi-person-fill"></i> User Profile</a>
-        
-        <a href="../feedback.jsp" class="nav-link"><i class="bi bi-chat-left-text-fill"></i> Feedback</a>
-        
-        <a href="login.jsp" class="nav-link mt-5 text-danger border-top pt-3">
+        <a href="LoginServlet" class="nav-link mt-5 text-danger border-top pt-3">
             <i class="bi bi-box-arrow-right"></i> Logout
         </a>
     </nav>
@@ -88,17 +110,18 @@
         <div class="col-md-4">
             <div class="card profile-card p-4 h-100">
                 <div class="text-center">
-                    <img src="https://ui-avatars.com/api/?name=Sir+Lewis&background=random" class="profile-img" alt="Profile">
-                    <h5 class="fw-bold mb-0" id="userNameDisplay">Sir Lewis</h5>
-                    <p class="text-primary small">Student</p>
+                    <img src="https://ui-avatars.com/api/?name=<%= user.getName().replace(" ", "+") %>&background=random" class="profile-img" alt="Profile">
+                    
+                    <h5 class="fw-bold mb-0" id="userNameDisplay"><%= user.getName() %></h5>
+                    <p class="text-primary small"><%= role %></p>
                     <p class="text-muted small">Universiti Teknologi MARA</p>
                 </div>
                 
                 <hr class="my-4">
                 
                 <div class="contact-info">
-                    <div class="contact-item"><i class="bi bi-envelope"></i> lewis.hamilton@student.uitm.edu.my</div>
-                    <div class="contact-item"><i class="bi bi-telephone"></i> 173123332213</div>
+                    <div class="contact-item"><i class="bi bi-envelope"></i> <%= user.getEmail() %></div>
+                    <div class="contact-item"><i class="bi bi-telephone"></i> <%= user.getPhoneNum() %></div>
                     <div class="contact-item"><i class="bi bi-geo-alt"></i> Shah Alam, Malaysia</div>
                     <div class="contact-item"><i class="bi bi-calendar"></i> Joined March 2024</div>
                 </div>
@@ -128,19 +151,21 @@
                 <div class="row mb-4">
                     <div class="col-md-6 mb-3">
                         <div class="info-label">Full Name</div>
-                        <div class="info-value" id="mainNameDisplay">Sir Lewis</div>
+                        <div class="info-value" id="mainNameDisplay"><%= user.getName() %></div>
                     </div>
+                    
                     <div class="col-md-6 mb-3">
-                        <div class="info-label">Student ID</div>
-                        <div class="info-value">2023123456</div>
+                        <div class="info-label"><%= role.equals("Student") ? "Student ID" : "Staff ID" %></div>
+                        <div class="info-value"><%= user.getId() %></div>
                     </div>
+                    
                     <div class="col-md-6 mb-3">
                         <div class="info-label">Email</div>
-                        <div class="info-value">lewis@student.uitm.edu.my</div>
+                        <div class="info-value"><%= user.getEmail() %></div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="info-label">Phone Number</div>
-                        <div class="info-value">012-3456789</div>
+                        <div class="info-value"><%= user.getPhoneNum() %></div>
                     </div>
                 </div>
 

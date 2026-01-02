@@ -64,7 +64,7 @@
         <i class="bi bi-mortarboard-fill"></i> FYP Tracker
     </div>
     <nav class="nav flex-column">
-        <a href="SupervisorDashboardServlet" class="nav-link">
+        <a href="supervisor_dashboard" class="nav-link">
             <i class="bi bi-grid-fill me-2"></i> Dashboard
         </a>
         <a href="StudentListServlet" class="nav-link active">

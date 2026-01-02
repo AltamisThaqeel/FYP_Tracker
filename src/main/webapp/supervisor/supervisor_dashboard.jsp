@@ -52,15 +52,15 @@
         <i class="bi bi-grid-fill me-2"></i> Dashboard
     </a>
     
-    <a href="StudentListServlet" class="nav-link">
+    <a href="supervisor/student_list.jsp" class="nav-link">
         <i class="bi bi-people-fill me-2"></i> Student
     </a>
     
-    <a href="SupervisorMilestoneServlet" class="nav-link">
+    <a href="supervisor_milestone.jsp" class="nav-link">
         <i class="bi bi-list-check me-2"></i> Track Milestone
     </a>
     
-    <a href="profile.jsp" class="nav-link">
+    <a href="../profile.jsp" class="nav-link">
         <i class="bi bi-person-fill me-2"></i> Profile
     </a>
     
