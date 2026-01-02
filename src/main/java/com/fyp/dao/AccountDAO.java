@@ -10,80 +10,66 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class AccountDAO {
-    
-    // This method handles the LOGIN logic
+
+    // --- 1. LOGIN METHOD ---
     public Account login(String email, String password) {
         Account account = null;
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        
+
         try {
-            // 1. Get connection from your DBConnection class (Java DB)
             con = DBConnection.getConnection();
-            
-            // 2. Create the SQL Query (Java DB understands this SQL)
             String sql = "SELECT * FROM ACCOUNT WHERE EMAIL = ? AND HASH_PASS = ?";
-            
-            // 3. Prepare the statement
             ps = con.prepareStatement(sql);
-            ps.setString(1, email);     // Replace first ? with email
-            ps.setString(2, password);  // Replace second ? with password
-            
-            // 4. Run the query
+            ps.setString(1, email);
+            ps.setString(2, password);
             rs = ps.executeQuery();
-            
-            // 5. If a match is found, create the Account object
+
             if (rs.next()) {
                 account = new Account();
-                // These column names must match your Java DB Table columns exactly
-                account.setAccountId(rs.getInt("accountid")); 
+                account.setAccountId(rs.getInt("accountId"));
                 account.setEmail(rs.getString("email"));
                 account.setRoleType(rs.getString("role_type"));
-                // We don't save the password in the object for security
+                // Note: We retrieve 'full_name' if it exists in DB
+                try {
+                    account.setFullName(rs.getString("full_name"));
+                } catch (Exception e) {
+                    // Ignore if column is missing to prevent crash
+                }
             }
-            
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("Error in AccountDAO: " + e.getMessage());
         } finally {
-            // 6. Always close connections to prevent server crashes
-            try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-                if (con != null) con.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeResources(con, ps, rs);
         }
-        
-        return account; // Returns the user object if found, or null if login failed
+        return account;
     }
-    
-    // Method to Register a New User
+
+    // --- 2. REGISTER USER ACCOUNT ---
     public int registerUser(Account a) {
         int newId = -1;
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        
+
         try {
             con = DBConnection.getConnection();
-            
-            // Insert into ACCOUNT table (including the new fullname)
-            String sql = "INSERT INTO ACCOUNT (email, hash_pass, role_type, fullname) VALUES (?, ?, ?, ?)";
-            
-            // RETURN_GENERATED_KEYS is needed to get the new Account ID immediately
-            ps = con.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+
+            // FIX: Ensure column name is 'full_name' matches DB
+            String sql = "INSERT INTO ACCOUNT (email, hash_pass, role_type, full_name) VALUES (?, ?, ?, ?)";
+
+            ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, a.getEmail());
-            ps.setString(2, a.getPassword()); // In real world, hash this!
+            ps.setString(2, a.getPassword());
             ps.setString(3, a.getRoleType());
             ps.setString(4, a.getFullName());
-            
+
             int rows = ps.executeUpdate();
-            
+
             if (rows > 0) {
                 rs = ps.getGeneratedKeys();
                 if (rs.next()) {
@@ -91,58 +77,107 @@ public class AccountDAO {
                 }
             }
         } catch (SQLException e) {
+            System.out.println("Error Registering Account: " + e.getMessage());
             e.printStackTrace();
         } finally {
-            try { if(rs!=null)rs.close(); if(ps!=null)ps.close(); if(con!=null)con.close(); } catch(Exception e){}
+            closeResources(con, ps, rs);
         }
         return newId;
     }
-    
-    // Check if email already exists
+
+    // --- 3. CHECK EMAIL EXISTS ---
     public boolean emailExists(String email) {
         boolean exists = false;
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         try {
-            Connection con = DBConnection.getConnection();
-            String sql = "SELECT accountid FROM ACCOUNT WHERE email = ?";
-            PreparedStatement ps = con.prepareStatement(sql);
+            con = DBConnection.getConnection();
+            String sql = "SELECT accountId FROM ACCOUNT WHERE email = ?";
+            ps = con.prepareStatement(sql);
             ps.setString(1, email);
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             if (rs.next()) {
                 exists = true;
             }
-            con.close();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(con, ps, rs);
+        }
         return exists;
     }
-    
-    // Register a new Student row
+
+    // --- 4. REGISTER STUDENT PROFILE ---
+    // MOVED HERE for convenience, but usually belongs in StudentDAO
     public void registerStudent(String name, String phone, int accountId) {
+        Connection con = null;
+        PreparedStatement ps = null;
         try {
-            Connection con = DBConnection.getConnection();
-            // We need to generate a Student ID since the form doesn't ask for it.
-            // For now, we use a random number or timestamp "S" + Time
-            String genID = "2025" + (int)(Math.random() * 100000); 
-            
-            String sql = "INSERT INTO STUDENT (studentid, phoneNum, status, accountid) VALUES (?, ?, 'Active', ?)";
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, genID);
-            ps.setString(2, phone);
-            ps.setInt(3, accountId);
-            ps.executeUpdate();
-            con.close();
-        } catch (Exception e) { e.printStackTrace(); }
-    }
-    
-    // Register a new Supervisor row
-    public void registerSupervisor(String phone, int accountId) {
-        try {
-            Connection con = DBConnection.getConnection();
-            String sql = "INSERT INTO SUPERVISOR (phoneNum, position, accountid) VALUES (?, 'Lecturer', ?)";
-            PreparedStatement ps = con.prepareStatement(sql);
+            con = DBConnection.getConnection();
+
+            // FIX: Removed 'studentId' from INSERT. Let Derby Auto-Generate it.
+            String sql = "INSERT INTO STUDENT (phoneNum, status, accountId) VALUES (?, 'Active', ?)";
+
+            ps = con.prepareStatement(sql);
             ps.setString(1, phone);
             ps.setInt(2, accountId);
+
             ps.executeUpdate();
-            con.close();
-        } catch (Exception e) { e.printStackTrace(); }
+            System.out.println("Student Profile Created for Account ID: " + accountId);
+
+        } catch (Exception e) {
+            System.out.println("Error Registering Student: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            closeResources(con, ps, null);
+        }
+    }
+
+    // --- 5. REGISTER SUPERVISOR PROFILE ---
+    public void registerSupervisor(String phone, int accountId) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        try {
+            con = DBConnection.getConnection();
+
+            // FIX: Ensure columns match DB exactly
+            String sql = "INSERT INTO SUPERVISOR (phoneNum, position, accountId) VALUES (?, 'Lecturer', ?)";
+
+            ps = con.prepareStatement(sql);
+            ps.setString(1, phone);
+            ps.setInt(2, accountId);
+
+            ps.executeUpdate();
+            System.out.println("Supervisor Profile Created for Account ID: " + accountId);
+
+        } catch (Exception e) {
+            System.out.println("Error Registering Supervisor: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            closeResources(con, ps, null);
+        }
+    }
+
+    // Helper to close connections clean
+    private void closeResources(Connection con, PreparedStatement ps, ResultSet rs) {
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+        } catch (Exception e) {
+        }
+        try {
+            if (ps != null) {
+                ps.close();
+            }
+        } catch (Exception e) {
+        }
+        try {
+            if (con != null) {
+                con.close();
+            }
+        } catch (Exception e) {
+        }
     }
 }

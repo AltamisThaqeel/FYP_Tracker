@@ -2,14 +2,14 @@ package com.fyp.controller;
 
 import com.fyp.dao.AccountDAO;
 import com.fyp.model.Account;
-import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.Cookie; // <--- IMPORT THIS
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/LoginServlet"})
 public class LoginServlet extends HttpServlet {
@@ -19,70 +19,51 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
 
         // 1. Retrieve Form Data
-        String selectedRole = request.getParameter("role");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-        String remember = request.getParameter("remember"); // <--- GET CHECKBOX VALUE
+        String selectedRole = request.getParameter("role"); // "student" or "supervisor"
+        String rememberMe = request.getParameter("remember"); // Checkbox value
 
-        // 2. Database Validation
+        // 2. Validate Credentials against Database
         AccountDAO dao = new AccountDAO();
-        Account user = dao.login(email, password); 
+        Account account = dao.login(email, password);
 
-        // 3. Logic Flow
-        if (user != null) {
-            
-            // --- CHECK 2: Did they select the correct role? ---
-            if (user.getRoleType().equalsIgnoreCase(selectedRole)) {
-
-                // --- LOGIN SUCCESS ---
-                
-                // === START REMEMBER ME LOGIC ===
-                // Create a cookie named "c_email" to store the email
-                Cookie c = new Cookie("c_email", email);
-                
-                if (remember != null && remember.equals("on")) {
-                    // If checked, save for 30 days (30 * 24 * 60 * 60 seconds)
-                    c.setMaxAge(60 * 60 * 24 * 30); 
-                } else {
-                    // If unchecked, delete the cookie instantly
-                    c.setMaxAge(0); 
-                }
-                response.addCookie(c); // Add cookie to the response
-                // === END REMEMBER ME LOGIC ===
-
-                // Create Session
-                HttpSession session = request.getSession();
-                session.setAttribute("user", user);      
-                session.setAttribute("role", selectedRole); 
-
-                // Redirect to the specific SERVLET (Not JSP)
-                // We use Servlets so that dashboard data (projects/tasks) loads first.
-                if (selectedRole.equalsIgnoreCase("Student")) {
-                    response.sendRedirect("StudentDashboardServlet"); // Loads data -> student_dashboard.jsp
-                    
-                } else if (selectedRole.equalsIgnoreCase("Supervisor")) {
-                    response.sendRedirect("SupervisorDashboardServlet"); // Loads data -> supervisor_dashboard.jsp
-                } 
-                else {
-                    response.sendRedirect("index.html");
-                }
-
-            } else {
-                // --- ROLE MISMATCH ---
-                request.setAttribute("errorMessage", "Role mismatch! You are registered as a " + user.getRoleType());
-                request.getRequestDispatcher("login.jsp").forward(request, response);
-            }
-
-        } else {
-            // --- LOGIN FAILED ---
-            request.setAttribute("errorMessage", "Invalid email or password.");
-            request.getRequestDispatcher("login.jsp").forward(request, response);
+        if (account == null) {
+            // Case A: Account not found or wrong password
+            response.sendRedirect("login.jsp?error=InvalidCredentials");
+            return;
         }
-    }
-    
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.sendRedirect("login.jsp");
+
+        // 3. Validate Role Selection
+        // The DB role (e.g., "STUDENT") might differ in case from dropdown ("student")
+        if (!account.getRoleType().equalsIgnoreCase(selectedRole)) {
+            // Case B: Correct password, but wrong role selected
+            response.sendRedirect("login.jsp?error=RoleMismatch");
+            return;
+        }
+
+        // 4. Handle "Remember Me" Cookie
+        Cookie cookie = new Cookie("c_email", email);
+        if (rememberMe != null) {
+            cookie.setMaxAge(60 * 60 * 24 * 7); // Store for 7 Days
+        } else {
+            cookie.setMaxAge(0); // Delete cookie if unchecked
+        }
+        response.addCookie(cookie);
+
+        // 5. Create Session (Login Success)
+        HttpSession session = request.getSession();
+        session.setAttribute("user", account);
+        session.setAttribute("role", account.getRoleType());
+
+        // Save the specific ID (StudentId or SupervisorId) for queries later
+        // Note: You'll need to fetch the specific ID using Account ID,
+        // but for now, we redirect to the correct dashboard.
+        // 6. Redirect to Dashboard
+        if ("Supervisor".equalsIgnoreCase(account.getRoleType())) {
+            response.sendRedirect("SupervisorDashboardServlet");
+        } else {
+            response.sendRedirect("StudentDashboardServlet");
+        }
     }
 }
