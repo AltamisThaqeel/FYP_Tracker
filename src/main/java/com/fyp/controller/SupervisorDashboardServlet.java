@@ -32,7 +32,7 @@ public class SupervisorDashboardServlet extends HttpServlet {
         }
 
         SupervisorDAO dao = new SupervisorDAO();
-        int supervisorId = 107; // Hardcoded for assignment
+        int supervisorId = 1; // Hardcoded for assignment
 
         // 1. Fetch Projects
         List<Project> projects = dao.getProjectsWithDetails(supervisorId);

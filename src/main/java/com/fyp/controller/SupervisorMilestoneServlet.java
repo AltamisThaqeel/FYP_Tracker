@@ -36,7 +36,7 @@ public class SupervisorMilestoneServlet extends HttpServlet {
 
         SupervisorDAO supDao = new SupervisorDAO();
         MilestoneDAO mileDao = new MilestoneDAO();
-        int supervisorId = 107; // Hardcoded for this demo
+        int supervisorId = 1; // Hardcoded for this demo
 
         // 1. Get List of All Students (For Dropdown)
         List<Project> allStudents = supDao.getProjectsWithDetails(supervisorId);
