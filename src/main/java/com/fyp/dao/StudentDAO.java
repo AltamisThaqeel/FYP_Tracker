@@ -11,25 +11,23 @@ import java.sql.PreparedStatement;
 public class StudentDAO {
     
     // Register a new Student row linked to an Account
-    public void registerStudent(String name, String phone, int accountId) {
+        public void registerStudent(String name, String phone, int accountId) {
         Connection con = null;
         PreparedStatement ps = null;
         try {
             con = DBConnection.getConnection();
-            
-            // We need to generate a Student ID. 
-            // In a real system, you might ask for it in the form. 
-            // Here, we generate a random one starting with 2025.
-            String genID = "2025" + (int)(Math.random() * 100000); 
-            
-            String sql = "INSERT INTO STUDENT (studentid, phoneNum, status, accountid) VALUES (?, ?, 'Active', ?)";
+
+            // REMOVE 'studentid' from the SQL query
+            String sql = "INSERT INTO STUDENT (phoneNum, status, accountId) VALUES (?, 'Active', ?)";
             ps = con.prepareStatement(sql);
-            ps.setString(1, genID);
-            ps.setString(2, phone);
-            ps.setInt(3, accountId);
-            
+
+            // Shift parameter indices to match the new SQL
+            ps.setString(1, phone);
+            ps.setInt(2, accountId);
+
             ps.executeUpdate();
-            
+            System.out.println("Student profile automatically created.");
+
         } catch (Exception e) { 
             e.printStackTrace(); 
         } finally {

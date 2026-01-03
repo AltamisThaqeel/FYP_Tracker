@@ -146,11 +146,14 @@
                 <a href="${pageContext.request.contextPath}/StudentDashboardServlet" class="nav-link">
                     <i class="bi bi-grid-fill"></i> Dashboard
                 </a>
-                <a href="${pageContext.request.contextPath}/student/create_project.jsp" class="nav-link">
+                <a href="${pageContext.request.contextPath}/CreateProjectServlet" class="nav-link">
                     <i class="bi bi-folder-fill"></i> My Project
                 </a>
                 <a href="${pageContext.request.contextPath}/student/milestones.jsp" class="nav-link">
                     <i class="bi bi-list-check"></i> Milestones
+                </a>
+                    <a href="${pageContext.request.contextPath}/student/feedback.jsp" class="nav-link">
+                    <i class="bi bi-list-check"></i> Feedback
                 </a>
 
                 <%-- SCENARIO: SUPERVISOR IS LOGGED IN --%>
