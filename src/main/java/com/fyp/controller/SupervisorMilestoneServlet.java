@@ -43,14 +43,14 @@ public class SupervisorMilestoneServlet extends HttpServlet {
         request.setAttribute("allStudents", allStudents);
 
         // 2. Check if a specific student is selected via URL (?studentId=...)
-        String studentId = request.getParameter("studentId");
+        String studentIdStr = request.getParameter("studentId");
 
-        if (studentId != null && !studentId.isEmpty()) {
-
+        if (studentIdStr != null && !studentIdStr.isEmpty()) {
+            int studentId = Integer.parseInt(studentIdStr);
             // Find the specific project object from the list
             Project selectedProject = null;
             for (Project p : allStudents) {
-                if (p.getStudentId().equals(studentId)) {
+                if (p.getStudentId() == studentId) {
                     selectedProject = p;
                     break;
                 }

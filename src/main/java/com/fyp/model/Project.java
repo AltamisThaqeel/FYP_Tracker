@@ -1,35 +1,67 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.fyp.model;
 
 import java.sql.Date;
 
 public class Project {
-    private int projectId;
-    private String title;
-    private String description;
-    private Date startDate;
-    private Date endDate;
-    private String status;
-    private String studentId; 
-    private int supervisorId;
+    
+    // --- SHARED DATABASE FIELDS (Matches your SQL Table) ---
+    private int projectId;          // SQL: projectId INT
+    private String projectName;     // SQL: project_title
+    private String description;     // SQL: project_desc
+    private String objective;       // SQL: project_obj
+    private String status;          // SQL: project_status
+    private String projectType;     // SQL: project_type
+    private String contactPhone;    // SQL: contact_phone
+    private int numOfWeeks;         // SQL: numOfWeeks
+    private Date startDate;         // SQL: start_date
+    private Date endDate;           // SQL: end_date
+
+    // --- FOREIGN KEYS (Integers to match DB) ---
+    private int studentId;          // SQL: studentId INT
+    private int supervisorId;       // SQL: supervisorId INT
+
+    // --- VIRTUAL FIELDS (For Display Only - Not in PROJECT table) ---
+    // These hold data we get by joining tables (e.g. joining SUPERVISOR table)
+    private String supervisorName;
+    private int progress;
     private String studentName;
     private String studentPhone;
     private String categoryName;
 
     public Project() {}
 
-    // Getters and Setters
+    // ==========================================
+    //       GETTERS AND SETTERS
+    // ==========================================
+
     public int getProjectId() { return projectId; }
     public void setProjectId(int projectId) { this.projectId = projectId; }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    // Maps to 'project_title'
+    public String getProjectName() { return projectName; }
+    public void setProjectName(String projectName) { this.projectName = projectName; }
+    
+    // Helper: Keeps older code working if it uses setTitle
+    public void setTitle(String title) { this.projectName = title; }
+    public String getTitle() { return projectName; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+    
+    public String getObjective() { return objective; }
+    public void setObjective(String objective) { this.objective = objective; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getProjectType() { return projectType; }
+    public void setProjectType(String projectType) { this.projectType = projectType; }
+
+    public String getContactPhone() { return contactPhone; }
+    public void setContactPhone(String contactPhone) { this.contactPhone = contactPhone; }
+    
+    public int getNumOfWeeks() { return numOfWeeks; }
+    public void setNumOfWeeks(int numOfWeeks) { this.numOfWeeks = numOfWeeks; }
 
     public Date getStartDate() { return startDate; }
     public void setStartDate(Date startDate) { this.startDate = startDate; }
@@ -37,15 +69,20 @@ public class Project {
     public Date getEndDate() { return endDate; }
     public void setEndDate(Date endDate) { this.endDate = endDate; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
-    public String getStudentId() { return studentId; }
-    public void setStudentId(String studentId) { this.studentId = studentId; }
-
+    // --- ID Links (Corrected to int) ---
+    public int getStudentId() { return studentId; }
+    public void setStudentId(int studentId) { this.studentId = studentId; }
+    
     public int getSupervisorId() { return supervisorId; }
     public void setSupervisorId(int supervisorId) { this.supervisorId = supervisorId; }
-    
+
+    // --- Virtual / Display Fields ---
+    public String getSupervisorName() { return supervisorName; }
+    public void setSupervisorName(String supervisorName) { this.supervisorName = supervisorName; }
+
+    public int getProgress() { return progress; }
+    public void setProgress(int progress) { this.progress = progress; }
+
     public String getStudentName() { return studentName; }
     public void setStudentName(String studentName) { this.studentName = studentName; }
 

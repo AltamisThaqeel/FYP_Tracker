@@ -36,7 +36,7 @@ public class SupervisorDAO {
                 p.setTitle(rs.getString("project_title"));
                 p.setDescription(rs.getString("project_desc"));
                 p.setStatus(rs.getString("project_status"));
-                p.setStudentId(rs.getString("studentid")); // We will show Student ID since Name isn't in ERD
+                p.setStudentId(rs.getInt("studentId")); // We will show Student ID since Name isn't in ERD
                 p.setStartDate(rs.getDate("start_date"));
                 p.setEndDate(rs.getDate("end_date"));
                 
@@ -101,7 +101,7 @@ public class SupervisorDAO {
                 p.setStartDate(rs.getDate("start_date"));
                 p.setEndDate(rs.getDate("end_date"));
                 p.setStatus(rs.getString("project_status"));
-                p.setStudentId(rs.getString("studentid"));
+                p.setStudentId(rs.getInt("studentId"));
                 
                 // Set the new display fields
                 p.setStudentName(rs.getString("student_name")); // Ensure STUDENT table has 'student_name' column

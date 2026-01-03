@@ -1,19 +1,15 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.fyp.controller;
 
 import com.fyp.dao.ProjectDAO;
 import com.fyp.model.Account;
 import com.fyp.model.Project;
+import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
 
 @WebServlet(name = "StudentDashboardServlet", urlPatterns = {"/StudentDashboardServlet"})
 public class StudentDashboardServlet extends HttpServlet {
@@ -24,30 +20,27 @@ public class StudentDashboardServlet extends HttpServlet {
         
         HttpSession session = request.getSession();
         Account user = (Account) session.getAttribute("user");
-        
-        // 1. Security Check: Is user logged in and a Student?
-        if (user == null || !user.getRoleType().equalsIgnoreCase("Student")) {
-            response.sendRedirect(request.getContextPath() + "/index.html");
+
+        // 1. Security Check
+        if (user == null) {
+            response.sendRedirect("login.jsp");
             return;
         }
 
-        // 2. Fetch Project Data for this Student
-        // We assume the studentID is the same as the email or we need to fetch the Student ID based on Account ID.
-        // For this assignment, let's assume you stored the 'Student ID' in the session during login, 
-        // OR we use the hardcoded sample ID "2025368237" (Rashdan) for testing if you haven't linked them yet.
+        ProjectDAO projectDAO = new ProjectDAO();
         
-        ProjectDAO dao = new ProjectDAO();
+        // 2. Get the real studentId using the accountId
+        int studentId = projectDAO.getStudentIdByAccount(user.getAccountId());
         
-        // TEMPORARY: Hardcoded ID to test the display immediately (matches your sample DB data)
-        // Later we will fetch the real ID from the Account object.
-        String tempStudentId = "2025368237"; 
-        
-        Project myProject = dao.getProjectByStudent(tempStudentId);
-        
-        // 3. Attach data to the request
-        request.setAttribute("project", myProject);
-        
-        // 4. Forward to the JSP
+        if (studentId != -1) {
+            // 3. Fetch the project using the INT studentId
+            Project myProject = projectDAO.getProjectByStudent(studentId);
+            
+            // 4. Send the project object to the JSP
+            request.setAttribute("project", myProject);
+        }
+
+        // 5. Forward to the JSP page
         request.getRequestDispatcher("student/student_dashboard.jsp").forward(request, response);
     }
 }

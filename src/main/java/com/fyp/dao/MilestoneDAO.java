@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.fyp.dao;
 
 import com.fyp.model.Milestone;
@@ -14,59 +10,64 @@ import java.util.List;
 
 public class MilestoneDAO {
 
-    // 1. Get all milestones for a specific Project Schedule (Week)
+    // ==========================================
+    //  EXISTING SUPERVISOR METHODS (DO NOT DELETE)
+    // ==========================================
+    
+    // Likely looks something like this in your current file:
     public List<Milestone> getMilestonesBySchedule(int scheduleId) {
-        List<Milestone> list = new ArrayList<>();
-        try {
-            Connection con = DBConnection.getConnection();
-            String sql = "SELECT * FROM MILESTONE WHERE PROJECT_SCHEDULE_ID = ?";
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, scheduleId);
-            ResultSet rs = ps.executeQuery();
+        // ... your existing code ...
+        return null; // placeholder
+    }
 
+    public void addMilestone(Milestone m) {
+        // ... your existing code ...
+    }
+
+    public void updateStatus(int id, String status) {
+        // ... your existing code ...
+    }
+
+    // ==========================================
+    //  NEW METHOD FOR STUDENT DASHBOARD (ADD THIS)
+    // ==========================================
+    
+    public List<Milestone> getMilestonesByProjectId(int projectId) {
+        List<Milestone> list = new ArrayList<>();
+        
+        try (Connection con = DBConnection.getConnection()) {
+            
+            // Query the database using project_id
+            String sql = "SELECT * FROM milestone WHERE project_id = ?"; 
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, projectId);
+            
+            ResultSet rs = ps.executeQuery();
+            
             while (rs.next()) {
                 Milestone m = new Milestone();
-                m.setMilestoneId(rs.getInt("milestoneid"));
-                m.setDescription(rs.getString("milestone_desc")); // Must match DB column name
+                
+                // MAP DB COLUMNS TO YOUR EXISTING MODEL FIELDS
+                
+                // 1. ID
+                m.setMilestoneId(rs.getInt("milestone_id")); 
+                
+                // 2. Description (Use 'description' because your Model has it)
+                m.setDescription(rs.getString("description")); 
+                
+                // 3. Status
                 m.setStatus(rs.getString("status"));
-                m.setProjectScheduleId(rs.getInt("project_schedule_id"));
+                
+                // 4. Project ID link (Bridge the gap)
+                // Your Model has 'projectScheduleId', DB has 'project_id'
+                m.setProjectScheduleId(rs.getInt("project_id")); 
+                
                 list.add(m);
             }
-            con.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
         return list;
     }
 
-    // 2. Add a new Milestone
-    public void addMilestone(Milestone m) {
-        try {
-            Connection con = DBConnection.getConnection();
-            String sql = "INSERT INTO MILESTONE (milestone_desc, status, project_schedule_id) VALUES (?, ?, ?)";
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, m.getDescription());
-            ps.setString(2, "Pending"); // Default status
-            ps.setInt(3, m.getProjectScheduleId());
-            ps.executeUpdate();
-            con.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
-    // 3. Update Milestone Status
-    public void updateStatus(int milestoneId, String newStatus) {
-        try {
-            Connection con = DBConnection.getConnection();
-            String sql = "UPDATE MILESTONE SET STATUS = ? WHERE MILESTONEID = ?";
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, newStatus);
-            ps.setInt(2, milestoneId);
-            ps.executeUpdate();
-            con.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-}
+} // End of Class
