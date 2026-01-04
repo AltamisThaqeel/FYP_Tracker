@@ -150,13 +150,17 @@
                         <%
                             List<Project> students = (List<Project>) request.getAttribute("allStudents");
                             Project selected = (Project) request.getAttribute("selectedProject");
-                            String selId = (selected != null) ? selected.getStudentId() : "";
+
+                            // --- FIX 1: Convert int ID to String safely ---
+                            String selId = (selected != null) ? String.valueOf(selected.getStudentId()) : "";
 
                             if(students != null) {
                                 for(Project p : students) {
-                                    String isSel = p.getStudentId().equals(selId) ? "selected" : "";
+                                    // --- FIX 2: Convert p.getStudentId() to String for comparison ---
+                                    String currentId = String.valueOf(p.getStudentId());
+                                    String isSel = currentId.equals(selId) ? "selected" : "";
                         %>
-                        <option value="<%= p.getStudentId() %>" <%= isSel %>><%= p.getStudentName() %></option>
+                        <option value="<%= currentId %>" <%= isSel %>><%= p.getStudentName() %></option>
                         <%
                                 }
                             }

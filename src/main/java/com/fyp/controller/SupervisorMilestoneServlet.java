@@ -28,7 +28,7 @@ public class SupervisorMilestoneServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Account user = (Account) session.getAttribute("user");
 
-        // Security Check
+        // 1. Security Check
         if (user == null || !user.getRoleType().equalsIgnoreCase("Supervisor")) {
             response.sendRedirect("login.jsp");
             return;
@@ -36,21 +36,24 @@ public class SupervisorMilestoneServlet extends HttpServlet {
 
         SupervisorDAO supDao = new SupervisorDAO();
         MilestoneDAO mileDao = new MilestoneDAO();
-        int supervisorId = 1; // Hardcoded for this demo
 
-        // 1. Get List of All Students (For Dropdown)
+        // FIX 1: Get the REAL Supervisor ID (No more 107!)
+        int supervisorId = supDao.getSupervisorId(user.getAccountId());
+
+        // 2. Get List of All Students assigned to this Supervisor
         List<Project> allStudents = supDao.getProjectsWithDetails(supervisorId);
         request.setAttribute("allStudents", allStudents);
 
-        // 2. Check if a specific student is selected via URL (?studentId=...)
-        String studentIdStr = request.getParameter("studentId");
+        // 3. Check if a specific student is selected via URL (?studentId=...)
+        String studentId = request.getParameter("studentId");
 
-        if (studentIdStr != null && !studentIdStr.isEmpty()) {
-            int studentId = Integer.parseInt(studentIdStr);
-            // Find the specific project object from the list
+        if (studentId != null && !studentId.isEmpty()) {
+
             Project selectedProject = null;
             for (Project p : allStudents) {
-                if (p.getStudentId() == studentId) {
+
+                // --- IMPORTANT CHANGE HERE: String.valueOf(...) ---
+                if (String.valueOf(p.getStudentId()).equals(studentId)) {
                     selectedProject = p;
                     break;
                 }
@@ -59,25 +62,33 @@ public class SupervisorMilestoneServlet extends HttpServlet {
             if (selectedProject != null) {
                 request.setAttribute("selectedProject", selectedProject);
 
-                // 3. Fetch Milestones
-                // (Assuming Week 1 / Schedule ID 1 for this prototype)
-                List<Milestone> milestones = mileDao.getMilestonesBySchedule(1);
-                request.setAttribute("milestoneList", milestones);
+                // FIX 2: Get the CORRECT Schedule ID for this specific project
+                int scheduleId = mileDao.getScheduleIdByProject(selectedProject.getProjectId());
 
-                // 4. Calculate Stats (Total vs Completed)
-                int total = milestones.size();
-                int completed = 0;
-                for (Milestone m : milestones) {
-                    if ("Completed".equalsIgnoreCase(m.getStatus())) {
-                        completed++;
+                if (scheduleId != -1) {
+                    // Fetch milestones for THAT schedule
+                    List<Milestone> milestones = mileDao.getMilestonesBySchedule(scheduleId);
+                    request.setAttribute("milestoneList", milestones);
+
+                    // Calculate Stats
+                    int total = milestones.size();
+                    int completed = 0;
+                    for (Milestone m : milestones) {
+                        if ("Completed".equalsIgnoreCase(m.getStatus())) {
+                            completed++;
+                        }
                     }
+                    request.setAttribute("statTotal", total);
+                    request.setAttribute("statCompleted", completed);
+                } else {
+                    // Handle case where no schedule exists yet
+                    request.setAttribute("statTotal", 0);
+                    request.setAttribute("statCompleted", 0);
                 }
-                request.setAttribute("statTotal", total);
-                request.setAttribute("statCompleted", completed);
             }
         }
 
-        // 5. Forward to JSP
+        // 4. Forward to JSP
         request.getRequestDispatcher("supervisor/supervisor_milestone.jsp").forward(request, response);
     }
 }

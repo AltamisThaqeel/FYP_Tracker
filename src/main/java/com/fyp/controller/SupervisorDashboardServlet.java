@@ -25,6 +25,7 @@ public class SupervisorDashboardServlet extends HttpServlet {
         
         HttpSession session = request.getSession();
         Account user = (Account) session.getAttribute("user");
+
         
         if (user == null || !user.getRoleType().equalsIgnoreCase("Supervisor")) {
             response.sendRedirect("login.jsp");
@@ -32,7 +33,13 @@ public class SupervisorDashboardServlet extends HttpServlet {
         }
 
         SupervisorDAO dao = new SupervisorDAO();
-        int supervisorId = 1; // Hardcoded for assignment
+        int supervisorId = dao.getSupervisorId(user.getAccountId());
+
+        if (supervisorId == -1) {
+            // Handle error: User is logged in as Supervisor but not found in SUPERVISOR table
+            response.sendRedirect("login.jsp?error=ProfileNotFound");
+            return;
+        }
 
         // 1. Fetch Projects
         List<Project> projects = dao.getProjectsWithDetails(supervisorId);

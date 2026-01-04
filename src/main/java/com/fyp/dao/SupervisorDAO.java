@@ -79,20 +79,25 @@ public class SupervisorDAO {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        
+
         try {
             con = DBConnection.getConnection();
-            // SQL JOIN to get names instead of just IDs
-            String sql = "SELECT p.*, s.student_name, s.phoneNum, c.category_name " +
-                         "FROM PROJECT p " +
-                         "JOIN STUDENT s ON p.studentid = s.studentid " +
-                         "LEFT JOIN PROJECT_CATEGORY c ON p.categoryid = c.categoryid " +
-                         "WHERE p.supervisorid = ?";
-            
+
+            // --- FIXED SQL QUERY ---
+            // 1. We Select 'a.full_name' (from Account)
+            // 2. We JOIN 'ACCOUNT a' on s.accountid = a.accountid
+            String sql = "SELECT p.*, a.full_name, s.phoneNum, c.category_name "
+                    + "FROM PROJECT p "
+                    + "JOIN STUDENT s ON p.studentid = s.studentid "
+                    + "JOIN ACCOUNT a ON s.accountid = a.accountid "
+                    + // <--- CRITICAL JOIN ADDED
+                    "LEFT JOIN PROJECT_CATEGORY c ON p.categoryid = c.categoryid "
+                    + "WHERE p.supervisorid = ?";
+
             ps = con.prepareStatement(sql);
             ps.setInt(1, supervisorId);
             rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 Project p = new Project();
                 p.setProjectId(rs.getInt("projectid"));
@@ -101,20 +106,71 @@ public class SupervisorDAO {
                 p.setStartDate(rs.getDate("start_date"));
                 p.setEndDate(rs.getDate("end_date"));
                 p.setStatus(rs.getString("project_status"));
-                p.setStudentId(rs.getInt("studentId"));
-                
-                // Set the new display fields
-                p.setStudentName(rs.getString("student_name")); // Ensure STUDENT table has 'student_name' column
+
+                // --- INT FIX CONFIRMED ---
+                p.setStudentId(rs.getInt("studentid"));
+
+                // --- NAME FIX ---
+                // Now this works because we selected 'a.full_name' in the SQL above
+                p.setStudentName(rs.getString("full_name"));
+
                 p.setStudentPhone(rs.getString("phoneNum"));
                 p.setCategoryName(rs.getString("category_name"));
-                
+
                 list.add(p);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try { if(rs!=null)rs.close(); if(ps!=null)ps.close(); if(con!=null)con.close(); } catch(Exception e){}
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (Exception e) {
+            }
         }
         return list;
+    }
+
+    // Get Supervisor ID from Account ID 
+    public int getSupervisorId(int accountId) {
+        int supervisorId = -1;
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            con = DBConnection.getConnection();
+            String sql = "SELECT supervisorId FROM SUPERVISOR WHERE accountId = ?";
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, accountId);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                supervisorId = rs.getInt("supervisorId");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (Exception e) {
+            }
+        }
+        return supervisorId;
     }
 }

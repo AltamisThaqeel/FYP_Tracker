@@ -34,8 +34,9 @@ public class StudentListServlet extends HttpServlet {
 
         // 1. Fetch Projects using the new DAO method
         SupervisorDAO dao = new SupervisorDAO();
-        // Assuming Account ID maps to Supervisor ID 1-to-1 for this demo, or fetch supervisor ID from DB
-        int supervisorId = 1;
+
+        int supervisorId = dao.getSupervisorId(user.getAccountId());
+
         
         List<Project> projectList = dao.getProjectsWithDetails(supervisorId);
         

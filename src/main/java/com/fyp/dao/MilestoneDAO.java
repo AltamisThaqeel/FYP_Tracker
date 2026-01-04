@@ -70,4 +70,25 @@ public class MilestoneDAO {
         return list;
     }
 
+    // --- NEW METHOD: Get Schedule ID for a Project ---
+    public int getScheduleIdByProject(int projectId) {
+        int scheduleId = -1;
+        try {
+            Connection con = DBConnection.getConnection();
+            // We find the schedule linked to this project
+            String sql = "SELECT project_schedule_id FROM PROJECT_SCHEDULE WHERE projectId = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, projectId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                scheduleId = rs.getInt("project_schedule_id");
+            }
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return scheduleId;
+    }
+
 } // End of Class
