@@ -1,5 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="com.fyp.model.Account"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <%
     // Security Check
     Account user = (Account) session.getAttribute("user");
@@ -21,6 +23,14 @@
         .nav-link.active { background-color: #2563EB; color: white; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
         .main-content { margin-left: 250px; padding: 30px; }
         .form-control, .form-select { background-color: #f8f9fa; border: 1px solid #dee2e6; height: 45px; }
+
+        /* --- NEW CSS FOR AUTO-EXPANDING TEXTAREAS --- */
+        textarea.auto-expand {
+            resize: none;       /* Disable manual resize handle */
+            overflow-y: hidden; /* Hide scrollbar */
+            min-height: 150px;  /* Minimum starting height */
+            transition: height 0.2s ease;
+        }
     </style>
 </head>
 <body>
@@ -40,73 +50,131 @@
 </div>
 
 <div class="main-content">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold">Project Application</h3>
+    
+    <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-white rounded shadow-sm">
+        <div class="d-flex align-items-center gap-3">
+            <h5 class="mb-0 fw-bold text-dark">Selected Project:</h5>
+            <select class="form-select w-auto border-0 bg-light fw-bold text-primary" 
+                    onchange="window.location.href='CreateProjectServlet?projectId='+this.value">
+                <option value="" disabled selected>Select a project...</option>
+                <c:choose>
+                    <c:when test="${empty projectList}">
+                        <option disabled>No projects found</option>
+                    </c:when>
+                    <c:otherwise>
+                        <c:forEach items="${projectList}" var="p">
+                            <option value="${p.projectId}" ${p.projectId == currentProject.projectId ? 'selected' : ''}>
+                                ${p.projectName}
+                            </option>
+                        </c:forEach>
+                    </c:otherwise>
+                </c:choose>
+            </select>
+        </div>
+        <a href="${pageContext.request.contextPath}/CreateProjectServlet?action=new" class="btn btn-outline-primary px-4">
+            <i class="bi bi-plus-lg me-2"></i>Create New Project
+        </a>
     </div>
 
     <div class="card border-0 shadow-sm p-4">
-        <h5 class="text-muted mb-4 border-bottom pb-3">Submit new project proposal</h5>
+        <h5 class="text-muted mb-4 border-bottom pb-3">
+            ${currentProject != null ? 'Edit Existing Project' : 'Submit New Project Proposal'}
+        </h5>
         
         <form action="${pageContext.request.contextPath}/CreateProjectServlet" method="POST">
+            
+            <c:if test="${currentProject != null}">
+                <input type="hidden" name="projectId" value="${currentProject.projectId}">
+            </c:if>
+
             <div class="row g-3">
                 <div class="col-md-12">
                     <label class="form-label small fw-bold text-secondary">Project Title</label>
-                    <input type="text" name="title" class="form-control" placeholder="Enter title..." required>
+                    <input type="text" name="title" class="form-control" 
+                           value="${currentProject.projectName}" placeholder="Enter title..." required>
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label small fw-bold text-secondary">Category / Research Area</label>
                     <select name="category" class="form-select" required>
-                        <option value="" disabled selected>Select a category</option>
-                        <option value="Machine Learning">Machine Learning</option>
-                        <option value="Internet of Things (IoT)">Internet of Things (IoT)</option>
-                        <option value="Web Development">Web Development</option>
-                        <option value="Cybersecurity">Cybersecurity</option>
-                        <option value="Data Science">Data Science</option>
+                        <option value="" disabled ${currentProject == null ? 'selected' : ''}>Select a category</option>
+                        <option value="Machine Learning" ${currentProject.categoryName == 'Machine Learning' ? 'selected' : ''}>Machine Learning</option>
+                        <option value="Internet of Things (IoT)" ${currentProject.categoryName == 'Internet of Things (IoT)' ? 'selected' : ''}>Internet of Things (IoT)</option>
+                        <option value="Web Development" ${currentProject.categoryName == 'Web Development' ? 'selected' : ''}>Web Development</option>
+                        <option value="Cybersecurity" ${currentProject.categoryName == 'Cybersecurity' ? 'selected' : ''}>Cybersecurity</option>
+                        <option value="Data Science" ${currentProject.categoryName == 'Data Science' ? 'selected' : ''}>Data Science</option>
                     </select>
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label small fw-bold text-secondary">Project Type</label>
                     <select name="type" class="form-select" required>
-                        <option value="Individual">Individual Project</option>
-                        <option value="Group">Group Project</option>
+                        <option value="Individual" ${currentProject.projectType == 'Individual' ? 'selected' : ''}>Individual Project</option>
+                        <option value="Group" ${currentProject.projectType == 'Group' ? 'selected' : ''}>Group Project</option>
                     </select>
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label small fw-bold text-secondary">Start Date</label>
-                    <input type="date" name="startDate" class="form-control" required>
+                    <input type="date" name="startDate" class="form-control" value="${currentProject.startDate}" required>
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label small fw-bold text-secondary">End Date</label>
-                    <input type="date" name="endDate" class="form-control" required>
+                    <input type="date" name="endDate" class="form-control" value="${currentProject.endDate}" required>
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label small fw-bold text-secondary">Contact Phone</label>
-                    <input type="text" name="phone" class="form-control" placeholder="+6012..." required>
+                    <input type="text" name="phone" class="form-control" value="${currentProject.contactPhone}" placeholder="+6012..." required>
                 </div>
 
                 <div class="col-12">
                     <label class="form-label small fw-bold text-secondary">Project Description</label>
-                    <textarea name="desc" class="form-control" rows="3" placeholder="Describe the background of your project..." required></textarea>
+                    <textarea name="desc" class="form-control auto-expand" rows="6" 
+                              placeholder="Describe the background..." 
+                              oninput="autoResize(this)" required>${currentProject.description}</textarea>
                 </div>
 
                 <div class="col-12">
                     <label class="form-label small fw-bold text-secondary">Project Objectives</label>
-                    <textarea name="objectives" class="form-control" rows="3" placeholder="List your key goals here..." required></textarea>
+                    <textarea name="objectives" class="form-control auto-expand" rows="6" 
+                              placeholder="List your key goals here..." 
+                              oninput="autoResize(this)" required>${currentProject.objective}</textarea>
                 </div>
 
                 <div class="col-12 text-end mt-4">
-                    <button type="reset" class="btn btn-light text-danger me-2">Clear Form</button>
-                    <button type="submit" class="btn btn-primary px-5 rounded-pill">Submit Application</button>
+                    <c:choose>
+                        <c:when test="${currentProject != null}">
+                            <a href="${pageContext.request.contextPath}/CreateProjectServlet?action=new" class="btn btn-light text-muted me-2">Cancel</a>
+                            <button type="submit" class="btn btn-warning px-5 rounded-pill text-white">Save Changes</button>
+                        </c:when>
+                        <c:otherwise>
+                            <button type="reset" class="btn btn-light text-danger me-2">Clear Form</button>
+                            <button type="submit" class="btn btn-primary px-5 rounded-pill">Submit Application</button>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+    // Function to calculate new height based on content
+    function autoResize(textarea) {
+        textarea.style.height = 'auto'; // Reset height momentarily to get correct scrollHeight
+        textarea.style.height = textarea.scrollHeight + 'px'; // Set to full content height
+    }
+
+    // Run on page load to resize boxes if data is already inside (Edit Mode)
+    window.addEventListener('load', function() {
+        const textareas = document.querySelectorAll('.auto-expand');
+        textareas.forEach(textarea => {
+            autoResize(textarea);
+        });
+    });
+</script>
 
 </body>
 </html>

@@ -172,9 +172,6 @@
                 <a href="${pageContext.request.contextPath}/profile.jsp" class="nav-link active">
                     <i class="bi bi-person-fill"></i> User Profile
                 </a>
-                <a href="${pageContext.request.contextPath}/feedback.jsp" class="nav-link">
-                    <i class="bi bi-chat-left-text-fill"></i> Feedback
-                </a>
 
                 <a href="${pageContext.request.contextPath}/logout.jsp" class="nav-link mt-5 text-danger border-top pt-3">
                     <i class="bi bi-box-arrow-right"></i> Logout
