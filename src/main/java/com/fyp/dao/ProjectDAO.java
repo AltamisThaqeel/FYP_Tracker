@@ -162,16 +162,17 @@ public class ProjectDAO {
                 p.setEndDate(rs.getDate("end_date"));
                 p.setProjectType(rs.getString("project_type"));
                 p.setContactPhone(rs.getString("contact_phone"));
-
-                // We need to fetch the Category Name based on ID for display
-                // Simple sub-query or separate method can handle this, 
-                // for now, let's assume we fetch the ID or join tables in a real app.
-                // p.setCategoryId(rs.getInt("categoryId")); 
+                p.setNumOfWeeks(rs.getInt("numOfWeeks"));
+                p.setStudentId(rs.getInt("studentId"));
 
                 list.add(p);
             }
-        } catch (Exception e) { e.printStackTrace(); } 
-        finally { closeResources(con, ps, rs); }
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        } 
+        finally { 
+            closeResources(con, ps, rs); 
+        }
         return list;
     }
 
@@ -204,5 +205,19 @@ public class ProjectDAO {
         } catch (Exception e) { e.printStackTrace(); } 
         finally { closeResources(con, ps, null); }
         return isSuccess;
+    }
+    
+    public int getProjectDuration(int projectId) {
+    int weeks = 0;
+    try (Connection con = DBConnection.getConnection()) {
+        String sql = "SELECT numOfWeeks FROM PROJECT WHERE projectId = ?";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setInt(1, projectId);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            weeks = rs.getInt("numOfWeeks");
+        }
+    } catch (Exception e) { e.printStackTrace(); }
+    return weeks;
     }
 }
