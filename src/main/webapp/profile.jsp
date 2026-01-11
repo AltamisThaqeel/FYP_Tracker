@@ -143,39 +143,23 @@
 
                 <%-- SCENARIO: STUDENT IS LOGGED IN --%>
                 <% if ("Student".equalsIgnoreCase(role)) { %>
-                <a href="${pageContext.request.contextPath}/StudentDashboardServlet" class="nav-link">
-                    <i class="bi bi-grid-fill"></i> Dashboard
-                </a>
-                <a href="${pageContext.request.contextPath}/CreateProjectServlet" class="nav-link">
-                    <i class="bi bi-folder-fill"></i> My Project
-                </a>
-                <a href="${pageContext.request.contextPath}/student/milestones.jsp" class="nav-link">
-                    <i class="bi bi-list-check"></i> Milestones
-                </a>
-                    <a href="${pageContext.request.contextPath}/student/feedback.jsp" class="nav-link">
-                    <i class="bi bi-list-check"></i> Feedback
-                </a>
+                <a href="${pageContext.request.contextPath}/StudentDashboardServlet" class="nav-link"><i class="bi bi-grid-fill"></i> Dashboard</a>
+                <a href="${pageContext.request.contextPath}/CreateProjectServlet" class="nav-link"><i class="bi bi-folder-fill"></i> My Project</a>
+                <a href="${pageContext.request.contextPath}/MilestoneServlet" class="nav-link"><i class="bi bi-list-check"></i> Milestones</a>
+                <a href="${pageContext.request.contextPath}/profile.jsp" class="nav-link active"><i class="bi bi-person-fill"></i> User Profile</a>
+                <a href="feedback.jsp" class="nav-link"><i class="bi bi-chat-left-text-fill me-2"></i> Feedback</a>
+                <a href="${pageContext.request.contextPath}/logout.jsp" class="nav-link mt-5 text-danger border-top pt-3"><i class="bi bi-box-arrow-right"></i> Logout</a>
 
                 <%-- SCENARIO: SUPERVISOR IS LOGGED IN --%>
                 <% } else if ("Supervisor".equalsIgnoreCase(role)) { %>
-                <a href="${pageContext.request.contextPath}/SupervisorDashboardServlet" class="nav-link">
-                    <i class="bi bi-grid-fill me-2"></i> Dashboard
-                </a>
-                <a href="${pageContext.request.contextPath}/StudentListServlet" class="nav-link">
-                    <i class="bi bi-people-fill"></i> Student
-                </a>
-                <a href="${pageContext.request.contextPath}/SupervisorMilestoneServlet" class="nav-link">
-                    <i class="bi bi-list-check me-2"></i> Track Milestone
-                </a>
-                <% } %>
-
-                <a href="${pageContext.request.contextPath}/profile.jsp" class="nav-link active">
-                    <i class="bi bi-person-fill"></i> User Profile
-                </a>
-
+                <a href="${pageContext.request.contextPath}/SupervisorDashboardServlet" class="nav-link"><i class="bi bi-grid-fill me-2"></i> Dashboard</a>
+                <a href="${pageContext.request.contextPath}/StudentListServlet" class="nav-link"><i class="bi bi-people-fill"></i> Student</a>
+                <a href="${pageContext.request.contextPath}/SupervisorMilestoneServlet" class="nav-link"><i class="bi bi-list-check me-2"></i> Track Milestone</a>    
+                <a href="${pageContext.request.contextPath}/profile.jsp" class="nav-link active"><i class="bi bi-person-fill"></i> User Profile</a>
                 <a href="${pageContext.request.contextPath}/logout.jsp" class="nav-link mt-5 text-danger border-top pt-3">
                     <i class="bi bi-box-arrow-right"></i> Logout
                 </a>
+                <% } %>
             </nav>
         </div>
 

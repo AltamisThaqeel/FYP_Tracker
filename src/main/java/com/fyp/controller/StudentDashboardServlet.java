@@ -1,5 +1,6 @@
 package com.fyp.controller;
 
+import com.fyp.dao.MilestoneDAO;
 import com.fyp.dao.ProjectDAO;
 import com.fyp.model.Account;
 import com.fyp.model.Project;
@@ -27,17 +28,23 @@ public class StudentDashboardServlet extends HttpServlet {
             return;
         }
 
-        ProjectDAO projectDAO = new ProjectDAO();
+        ProjectDAO pDao = new ProjectDAO();
+        MilestoneDAO mDao = new MilestoneDAO();
         
         // 2. Get the real studentId using the accountId
-        int studentId = projectDAO.getStudentIdByAccount(user.getAccountId());
+        int studentId = pDao.getStudentIdByAccount(user.getAccountId());
         
         if (studentId != -1) {
-            // 3. Fetch the project using the INT studentId
-            Project myProject = projectDAO.getProjectByStudent(studentId);
+            // 3. Fetch the project
+            Project myProject = pDao.getProjectByStudent(studentId);
             
-            // 4. Send the project object to the JSP
-            request.setAttribute("project", myProject);
+            if (myProject != null) {
+                // 4. Calculate REAL Progress based on Milestones
+                int progress = mDao.getProjectProgress(myProject.getProjectId());
+                myProject.setProgress(progress);
+                
+                request.setAttribute("project", myProject);
+            }
         }
 
         // 5. Forward to the JSP page

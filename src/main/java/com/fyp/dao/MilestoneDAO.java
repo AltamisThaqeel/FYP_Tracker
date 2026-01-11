@@ -12,9 +12,9 @@ import java.util.List;
 public class MilestoneDAO {
 
     // ==========================================================
-    //  CORE METHODS (Supervisor & Student)
+    //  1. METHODS FOR SUPERVISOR MILESTONE VIEW (Fixes SupervisorMilestoneServlet)
     // ==========================================================
-
+    
     public List<Milestone> getMilestonesBySchedule(int scheduleId) {
         List<Milestone> list = new ArrayList<>();
         try (Connection con = DBConnection.getConnection()) {
@@ -25,6 +25,7 @@ public class MilestoneDAO {
 
             while (rs.next()) {
                 Milestone m = new Milestone();
+                // Using lowercase column names as per your preference
                 m.setMilestoneId(rs.getInt("milestoneId"));
                 m.setDescription(rs.getString("milestone_desc")); 
                 m.setStatus(rs.getString("status"));
@@ -37,12 +38,30 @@ public class MilestoneDAO {
         return list; 
     }
 
-    public void updateStatus(int id, String status) {
+    public int getScheduleIdByProject(int projectId) {
+        int scheduleId = -1;
         try (Connection con = DBConnection.getConnection()) {
-            String sql = "UPDATE milestone SET status = ? WHERE milestoneId = ?";
+            String sql = "SELECT project_schedule_id FROM project_schedule WHERE projectId = ?";
             PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, status);
-            ps.setInt(2, id);
+            ps.setInt(1, projectId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                scheduleId = rs.getInt("project_schedule_id");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return scheduleId;
+    }
+    
+    // Kept for backward compatibility if Supervisor uses a different Add logic
+    public void addMilestone(Milestone m) {
+        try (Connection con = DBConnection.getConnection()) {
+            String sql = "INSERT INTO milestone (milestone_desc, status, project_schedule_id) VALUES (?, ?, ?)";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, m.getDescription());
+            ps.setString(2, "Pending"); 
+            ps.setInt(3, m.getProjectScheduleId());
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -50,7 +69,7 @@ public class MilestoneDAO {
     }
 
     // ==========================================================
-    //  STUDENT WEEKLY METHODS
+    //  2. METHODS FOR STUDENT WEEKLY VIEW (Fixes MilestoneServlet)
     // ==========================================================
     
     public List<Milestone> getMilestonesByProjectAndWeek(int projectId, int weekNum) {
@@ -58,14 +77,11 @@ public class MilestoneDAO {
         String sql = "SELECT m.* FROM milestone m " +
                      "JOIN project_schedule s ON m.project_schedule_id = s.project_schedule_id " +
                      "WHERE s.projectId = ? AND s.week_num = ?";
-        
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            
             ps.setInt(1, projectId);
             ps.setInt(2, weekNum);
             ResultSet rs = ps.executeQuery();
-            
             while (rs.next()) {
                 Milestone m = new Milestone();
                 m.setMilestoneId(rs.getInt("milestoneId"));
@@ -74,12 +90,11 @@ public class MilestoneDAO {
                 m.setProjectScheduleId(rs.getInt("project_schedule_id"));
                 list.add(m);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
         return list;
     }
 
+    // This is the specific method MilestoneServlet uses to ADD tasks dynamically
     public boolean addMilestone(String description, int projectId, int weekNum) {
         try (Connection con = DBConnection.getConnection()) {
             int scheduleId = getOrCreateSchedule(con, projectId, weekNum);
@@ -94,6 +109,7 @@ public class MilestoneDAO {
         }
     }
 
+    // Helper to auto-create schedule if it doesn't exist for that week
     private int getOrCreateSchedule(Connection con, int projectId, int weekNum) throws Exception {
         String checkSql = "SELECT project_schedule_id FROM project_schedule WHERE projectId = ? AND week_num = ?";
         PreparedStatement psCheck = con.prepareStatement(checkSql);
@@ -116,14 +132,13 @@ public class MilestoneDAO {
     }
 
     // ==========================================================
-    //  DASHBOARD & PROGRESS STATS (Required for Servlets)
+    //  3. METHODS FOR SUPERVISOR DASHBOARD (Fixes SupervisorDashboardServlet)
     // ==========================================================
 
     public int getProjectProgress(int projectId) {
-        int total = 0;
-        int completed = 0;
-        String sql = "SELECT m.status FROM milestone m " +
-                     "JOIN project_schedule ps ON m.project_schedule_id = ps.project_schedule_id " +
+        int total = 0, completed = 0;
+        String sql = "SELECT m.status FROM milestone m " + 
+                     "JOIN project_schedule ps ON m.project_schedule_id = ps.project_schedule_id " + 
                      "WHERE ps.projectId = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -131,9 +146,7 @@ public class MilestoneDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 total++;
-                if ("Completed".equalsIgnoreCase(rs.getString("status"))) {
-                    completed++;
-                }
+                if ("Completed".equalsIgnoreCase(rs.getString("status"))) completed++;
             }
         } catch (Exception e) { e.printStackTrace(); }
         return (total == 0) ? 0 : (int) ((double) completed / total * 100);
@@ -141,9 +154,9 @@ public class MilestoneDAO {
 
     public int countMilestonesByWeek(int supervisorId, int week) {
         int count = 0;
-        String sql = "SELECT count(*) FROM milestone m " +
-                     "JOIN project_schedule ps ON m.project_schedule_id = ps.project_schedule_id " +
-                     "JOIN project p ON ps.projectId = p.projectId " +
+        String sql = "SELECT count(*) FROM milestone m " + 
+                     "JOIN project_schedule ps ON m.project_schedule_id = ps.project_schedule_id " + 
+                     "JOIN project p ON ps.projectId = p.projectId " + 
                      "WHERE p.supervisorId = ? AND ps.week_num = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -157,9 +170,9 @@ public class MilestoneDAO {
 
     public int countTotalMilestones(int supervisorId) {
         int count = 0;
-        String sql = "SELECT count(*) FROM milestone m " +
-                     "JOIN project_schedule ps ON m.project_schedule_id = ps.project_schedule_id " +
-                     "JOIN project p ON ps.projectId = p.projectId " +
+        String sql = "SELECT count(*) FROM milestone m " + 
+                     "JOIN project_schedule ps ON m.project_schedule_id = ps.project_schedule_id " + 
+                     "JOIN project p ON ps.projectId = p.projectId " + 
                      "WHERE p.supervisorId = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -170,15 +183,17 @@ public class MilestoneDAO {
         return count;
     }
 
-    public int getScheduleIdByProject(int projectId) {
-        int scheduleId = -1;
-        String sql = "SELECT project_schedule_id FROM project_schedule WHERE projectId = ?";
+    // ==========================================================
+    //  4. UTILITIES (Used by Both)
+    // ==========================================================
+
+    public void updateStatus(int id, String status) {
+        String sql = "UPDATE milestone SET status = ? WHERE milestoneId = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, projectId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) scheduleId = rs.getInt("project_schedule_id");
+            ps.setString(1, status);
+            ps.setInt(2, id);
+            ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
-        return scheduleId;
     }
 }

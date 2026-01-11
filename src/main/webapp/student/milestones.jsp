@@ -16,22 +16,40 @@
         .nav-link:hover { background-color: #f1f5f9; color: #2563EB; }
         .nav-link.active { background-color: #2563EB; color: white; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
         .main-content { margin-left: 250px; padding: 30px; }
-        .week-tabs .nav-link { border: 1px solid #e9ecef; margin-bottom: 8px; border-radius: 8px; text-align: center; color: #495057; background: white; cursor: pointer; }
-        .week-tabs .nav-link.active { background-color: #2563EB; color: white; border-color: #2563EB; }
-        .task-input { border: none; background: #f1f3f5; padding: 15px; border-radius: 8px; width: 100%; }
-        .milestone-item { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; }
+        
+        /* --- DESIGN UPDATES --- */
+        .project-selector-bar { background: white; padding: 15px 25px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; }
+        
+        .week-tabs .nav-link { 
+            border: none; margin-bottom: 8px; border-radius: 10px; 
+            text-align: left; padding: 12px 20px; 
+            color: #6c757d; background: transparent; font-weight: 600; 
+            transition: all 0.2s ease;
+        }
+        .week-tabs .nav-link:hover { background-color: #e9ecef; color: #2563EB; }
+        .week-tabs .nav-link.active { background-color: #2563EB; color: white; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
+        
+        .task-card { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .task-input { border: 2px solid #f1f3f5; background: #f8f9fa; padding: 12px 20px; border-radius: 30px; width: 100%; transition: 0.3s; }
+        .task-input:focus { border-color: #2563EB; background: white; outline: none; }
+        
+        .milestone-item { 
+            background: #ffffff; padding: 15px 20px; border-radius: 12px; margin-bottom: 12px; 
+            border: 1px solid #f1f3f5; display: flex; align-items: center; 
+            transition: transform 0.2s ease;
+        }
+        .milestone-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .milestone-item.completed { border-left: 5px solid #198754; background-color: #f8fffb; }
     </style>
 
     <script>
-        // Triggered when the toggle switch is clicked
-        function toggleStatus(checkbox, milestoneId) {
-            const status = checkbox.checked ? 'Completed' : 'Not Started';
-            const projectId = "${currentProject.projectId}";
-            const weekNum = "${selectedWeek}";
+        // Updated Function: Sets the hidden input value and submits the form
+        function submitStatusUpdate(checkbox, milestoneId) {
+            const statusInput = document.getElementById('status_input_' + milestoneId);
+            statusInput.value = checkbox.checked ? 'Completed' : 'Not Started';
             
-            // Redirect to Servlet to update status in DB
-            window.location.href = "MilestoneServlet?action=complete&milestoneId=" + milestoneId + 
-                                   "&status=" + status + "&projectId=" + projectId + "&weekNum=" + weekNum;
+            // Submit the form that wraps this checkbox
+            checkbox.form.submit();
         }
     </script>
 </head>
@@ -45,87 +63,130 @@
         <a href="${pageContext.request.contextPath}/StudentDashboardServlet" class="nav-link"><i class="bi bi-grid-fill me-2"></i> Dashboard</a>
         <a href="${pageContext.request.contextPath}/CreateProjectServlet" class="nav-link"><i class="bi bi-folder-fill me-2"></i> My Project</a>
         <a href="${pageContext.request.contextPath}/MilestoneServlet" class="nav-link active"><i class="bi bi-list-check me-2"></i> Milestones</a>
-        <a href="../profile.jsp" class="nav-link"><i class="bi bi-person-fill me-2"></i> User Profile</a>
+        <a href="${pageContext.request.contextPath}/profile.jsp" class="nav-link"><i class="bi bi-person-fill me-2"></i> User Profile</a>
         <a href="feedback.jsp" class="nav-link"><i class="bi bi-chat-left-text-fill me-2"></i> Feedback</a>
-        <a href="../LoginServlet" class="nav-link mt-5 text-danger border-top pt-3"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
+        <a href="${pageContext.request.contextPath}/logout.jsp" class="nav-link mt-5 text-danger border-top pt-3"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
     </nav>
 </div>
 
 <div class="main-content">
-    <h3 class="mb-4">Project Milestone</h3>
     
-    <div class="mb-4">
-    <label class="small fw-bold text-muted mb-2">Select Project</label>
-    <select class="form-select shadow-sm border-0 p-3" 
-            style="background-color: #ffffff; border-radius: 10px; cursor: pointer;"
-            onchange="window.location.href='${pageContext.request.contextPath}/MilestoneServlet?projectId=' + this.value">
-
-        <c:forEach items="${projectList}" var="p">
-            <option value="${p.projectId}" ${p.projectId == projectId ? 'selected' : ''}>
-                ${p.projectName} </option>
-        </c:forEach>
-
-        <c:if test="${empty projectList}">
-            <option disabled>No projects found</option>
-        </c:if>
-    </select>
+    <div class="project-selector-bar mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="bg-primary bg-opacity-10 p-2 rounded-circle text-primary">
+                <i class="bi bi-folder2-open fs-5"></i>
+            </div>
+            <div>
+                <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 0.75rem;">Current Workspace</small>
+                <select class="form-select border-0 bg-transparent fw-bold text-dark p-0 shadow-none" 
+                        style="cursor: pointer; font-size: 1.1rem;"
+                        onchange="window.location.href='${pageContext.request.contextPath}/MilestoneServlet?projectId=' + this.value">
+                    
+                    <c:forEach items="${projectList}" var="p">
+                        <option value="${p.projectId}" ${p.projectId == projectId ? 'selected' : ''}>
+                            ${p.projectName}
+                        </option>
+                    </c:forEach>
+                    
+                    <c:if test="${empty projectList}">
+                        <option disabled>No projects found</option>
+                    </c:if>
+                </select>
+            </div>
+        </div>
+        <div>
+            <span class="badge bg-primary rounded-pill px-3 py-2">
+                <i class="bi bi-calendar-week me-1"></i> Week ${selectedWeek}
+            </span>
+        </div>
     </div>
-    <div class="row">
-        <div class="col-md-2">
+
+    <div class="row g-4">
+        <div class="col-md-3 col-lg-2">
+            <h6 class="text-muted fw-bold mb-3 px-2 small">TIMELINE</h6>
             <div class="nav flex-column nav-pills week-tabs">
                 <c:forEach var="i" begin="1" end="${currentProject.numOfWeeks}">
-                    <a href="MilestoneServlet?projectId=${currentProject.projectId}&week=${i}" 
-                       class="nav-link ${selectedWeek == i ? 'active' : ''}">
-                       Week ${i}
+                    <a href="${pageContext.request.contextPath}/MilestoneServlet?projectId=${currentProject.projectId}&week=${i}" 
+                       class="nav-link ${selectedWeek == i ? 'active' : ''} d-flex justify-content-between align-items-center">
+                       <span>Week ${i}</span>
+                       <c:if test="${selectedWeek == i}">
+                           <i class="bi bi-chevron-right small"></i>
+                       </c:if>
                     </a>
                 </c:forEach>
             </div>
         </div>
         
-        <div class="col-md-10">
-            <div class="bg-white p-4 rounded shadow-sm">
-                <h5 class="fw-bold mb-3">${currentProject.title}</h5>
-                
-                <form action="MilestoneServlet" method="POST" class="mb-4">
+        <div class="col-md-9 col-lg-10">
+            <div class="task-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold m-0 text-dark">Tasks & Deliverables</h5>
+                    <span class="text-muted small">
+                        <i class="bi bi-check2-circle text-success"></i> Auto-saved
+                    </span>
+                </div>
+
+                <form action="${pageContext.request.contextPath}/MilestoneServlet" method="POST" class="mb-4">
                     <input type="hidden" name="action" value="add">
                     <input type="hidden" name="projectId" value="${currentProject.projectId}">
                     <input type="hidden" name="weekNum" value="${selectedWeek}">
                     
-                    <label class="fw-bold small mb-2">Add New Task for Week ${selectedWeek}</label>
                     <div class="d-flex gap-2">
-                        <input type="text" name="taskDesc" class="task-input" placeholder="e.g., Design ERD Diagram..." required>
-                        <button type="submit" class="btn btn-primary rounded-pill px-4">Add Task</button>
+                        <input type="text" name="taskDesc" class="task-input" placeholder="Type a new task and press Enter..." required>
+                        <button type="submit" class="btn btn-primary rounded-circle shadow-sm" style="width: 45px; height: 45px;">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
                     </div>
                 </form>
 
-                <h6 class="fw-bold mb-3">Milestones for Week ${selectedWeek}</h6>
-                
                 <div id="milestoneList">
                     <c:choose>
                         <c:when test="${empty milestones}">
-                            <p class="text-muted italic">No tasks added for this week yet.</p>
+                            <div class="text-center py-5 text-muted">
+                                <i class="bi bi-clipboard-x display-4 opacity-25"></i>
+                                <p class="mt-3 small">No tasks found for Week ${selectedWeek}.<br>Add one above to get started!</p>
+                            </div>
                         </c:when>
                         <c:otherwise>
                             <c:forEach items="${milestones}" var="m">
-                                <div class="milestone-item shadow-sm">
-                                    <i class="bi bi-caret-right-fill text-muted me-3"></i>
-                                    <span class="flex-grow-1">${m.description}</span>
+                                <div class="milestone-item shadow-sm ${m.status == 'Completed' ? 'completed' : ''}">
                                     
-                                    <span class="badge ${m.status == 'Completed' ? 'bg-success' : 'bg-light text-secondary'} me-3">
-                                        ${m.status}
+                                    <form action="${pageContext.request.contextPath}/MilestoneServlet" method="POST" style="display:inline; margin:0;">
+                                        <input type="hidden" name="action" value="complete">
+                                        <input type="hidden" name="milestoneId" value="${m.milestoneId}">
+                                        <input type="hidden" name="projectId" value="${currentProject.projectId}">
+                                        <input type="hidden" name="weekNum" value="${selectedWeek}">
+                                        <input type="hidden" name="status" id="status_input_${m.milestoneId}" value="">
+                                        
+                                        <div class="form-check form-switch me-3">
+                                            <input class="form-check-input" type="checkbox" style="cursor: pointer; width: 40px; height: 20px;"
+                                                   ${m.status == 'Completed' ? 'checked' : ''}
+                                                   onchange="submitStatusUpdate(this, '${m.milestoneId}')">
+                                        </div>
+                                    </form>
+                                    
+                                    <span class="flex-grow-1 ${m.status == 'Completed' ? 'text-decoration-line-through text-muted' : 'fw-medium text-dark'}">
+                                        ${m.description}
                                     </span>
                                     
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" 
-                                               ${m.status == 'Completed' ? 'checked' : ''}
-                                               onchange="toggleStatus(this, '${m.milestoneId}')">
-                                    </div>
+                                    <c:choose>
+                                        <c:when test="${m.status == 'Completed'}">
+                                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">
+                                                <i class="bi bi-check-lg me-1"></i> Completed
+                                            </span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">
+                                                <i class="bi bi-x-lg me-1"></i> Not Started
+                                            </span>
+                                        </c:otherwise>
+                                    </c:choose>
+
                                 </div>
                             </c:forEach>
                         </c:otherwise>
                     </c:choose>
                 </div>
-
             </div>
         </div>
     </div>
