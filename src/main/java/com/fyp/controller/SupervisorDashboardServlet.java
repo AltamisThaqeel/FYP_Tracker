@@ -1,20 +1,17 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package com.fyp.controller;
 
+import com.fyp.dao.MilestoneDAO;
 import com.fyp.dao.SupervisorDAO;
 import com.fyp.model.Account;
 import com.fyp.model.Project;
+import java.io.IOException;
+import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.List;
 
 @WebServlet(name = "SupervisorDashboardServlet", urlPatterns = {"/SupervisorDashboardServlet"})
 public class SupervisorDashboardServlet extends HttpServlet {
@@ -22,41 +19,53 @@ public class SupervisorDashboardServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         HttpSession session = request.getSession();
         Account user = (Account) session.getAttribute("user");
 
-        
+        // Security Check
         if (user == null || !user.getRoleType().equalsIgnoreCase("Supervisor")) {
             response.sendRedirect("login.jsp");
             return;
         }
 
         SupervisorDAO dao = new SupervisorDAO();
+        MilestoneDAO mDao = new MilestoneDAO();
+
+        // 1. Get Dynamic Supervisor ID
         int supervisorId = dao.getSupervisorId(user.getAccountId());
 
-        if (supervisorId == -1) {
-            // Handle error: User is logged in as Supervisor but not found in SUPERVISOR table
-            response.sendRedirect("login.jsp?error=ProfileNotFound");
-            return;
-        }
-
-        // 1. Fetch Projects
+        // 2. Fetch Projects
         List<Project> projects = dao.getProjectsWithDetails(supervisorId);
-        
-        // 2. Calculate Stats
+
+        // 3. Calculate Dashboard Stats
         int totalStudents = projects.size();
-        int completed = 0;
-        int delayed = 0;
-        
-        for(Project p : projects) {
-            if("Completed".equalsIgnoreCase(p.getStatus())) completed++;
-            // Logic to determine delay can be added here based on dates
+        int completedProjects = 0;
+        int currentWeek = 1; // Assuming Week 1 for now
+
+        for (Project p : projects) {
+            // Count Completed Projects
+            if ("Completed".equalsIgnoreCase(p.getStatus())) {
+                completedProjects++;
+            }
+
+            // Calculate Progress % for each student
+            int progress = mDao.getProjectProgress(p.getProjectId());
+            p.setProgress(progress); // Save it to the object to display in the table
         }
 
+        // Get Milestone Counts
+        int weekMilestones = mDao.countMilestonesByWeek(supervisorId, currentWeek);
+        int totalMilestones = mDao.countTotalMilestones(supervisorId);
+
+        // 4. Send Data to JSP
         request.setAttribute("totalStudents", totalStudents);
-        request.setAttribute("projectList", projects); // Re-using the list for the "Status" table
-        
+        request.setAttribute("completedProjects", completedProjects);
+        request.setAttribute("weekMilestones", weekMilestones);
+        request.setAttribute("totalMilestones", totalMilestones);
+
+        request.setAttribute("projectList", projects);
+
         request.getRequestDispatcher("supervisor/supervisor_dashboard.jsp").forward(request, response);
     }
 }

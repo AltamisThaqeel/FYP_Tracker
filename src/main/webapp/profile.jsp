@@ -159,13 +159,13 @@
                 <%-- SCENARIO: SUPERVISOR IS LOGGED IN --%>
                 <% } else if ("Supervisor".equalsIgnoreCase(role)) { %>
                 <a href="${pageContext.request.contextPath}/SupervisorDashboardServlet" class="nav-link">
-                    <i class="bi bi-speedometer2"></i> Dashboard
+                    <i class="bi bi-grid-fill me-2"></i> Dashboard
                 </a>
                 <a href="${pageContext.request.contextPath}/StudentListServlet" class="nav-link">
-                    <i class="bi bi-people-fill"></i> My Students
+                    <i class="bi bi-people-fill"></i> Student
                 </a>
                 <a href="${pageContext.request.contextPath}/SupervisorMilestoneServlet" class="nav-link">
-                    <i class="bi bi-check-circle-fill"></i> Approvals
+                    <i class="bi bi-list-check me-2"></i> Track Milestone
                 </a>
                 <% } %>
 
