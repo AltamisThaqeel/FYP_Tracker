@@ -196,4 +196,65 @@ public class MilestoneDAO {
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
+
+    // --- NEW: Count TOTAL Milestones for a Project (All Weeks) ---
+    public int countAllMilestonesForProject(int projectId) {
+        int count = 0;
+        try {
+            Connection con = DBConnection.getConnection();
+            String sql = "SELECT count(*) FROM MILESTONE m "
+                    + "JOIN PROJECT_SCHEDULE ps ON m.project_schedule_id = ps.project_schedule_id "
+                    + "WHERE ps.projectId = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, projectId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+    // --- NEW: Count COMPLETED Milestones for a Project (All Weeks) ---
+    public int countCompletedMilestonesForProject(int projectId) {
+        int count = 0;
+        try {
+            Connection con = DBConnection.getConnection();
+            String sql = "SELECT count(*) FROM MILESTONE m "
+                    + "JOIN PROJECT_SCHEDULE ps ON m.project_schedule_id = ps.project_schedule_id "
+                    + "WHERE ps.projectId = ? AND m.status = 'Completed'";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, projectId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+    // --- ADD THIS MISSING METHOD ---
+    public int getScheduleIdByProjectAndWeek(int projectId, int weekNum) {
+        int scheduleId = -1;
+        try (Connection con = DBConnection.getConnection()) {
+            String sql = "SELECT project_schedule_id FROM project_schedule WHERE projectId = ? AND week_num = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, projectId);
+            ps.setInt(2, weekNum);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                scheduleId = rs.getInt("project_schedule_id");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return scheduleId;
+    }
 }

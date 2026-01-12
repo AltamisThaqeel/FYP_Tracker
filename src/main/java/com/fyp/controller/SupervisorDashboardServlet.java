@@ -41,17 +41,24 @@ public class SupervisorDashboardServlet extends HttpServlet {
         // 3. Calculate Dashboard Stats
         int totalStudents = projects.size();
         int completedProjects = 0;
-        int currentWeek = 1; // Assuming Week 1 for now
+        int currentWeek = 1; // You can make this dynamic later based on date
 
         for (Project p : projects) {
+            boolean isCompleted = "Completed".equalsIgnoreCase(p.getStatus());
+
             // Count Completed Projects
-            if ("Completed".equalsIgnoreCase(p.getStatus())) {
+            if (isCompleted) {
                 completedProjects++;
             }
 
-            // Calculate Progress % for each student
-            int progress = mDao.getProjectProgress(p.getProjectId());
-            p.setProgress(progress); // Save it to the object to display in the table
+            // --- FIX: Force 100% Progress if Status is Completed ---
+            if (isCompleted) {
+                p.setProgress(100);
+            } else {
+                // Otherwise, calculate based on milestones
+                int progress = mDao.getProjectProgress(p.getProjectId());
+                p.setProgress(progress);
+            }
         }
 
         // Get Milestone Counts

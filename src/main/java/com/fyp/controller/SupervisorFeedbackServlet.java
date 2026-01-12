@@ -5,12 +5,15 @@
 package com.fyp.controller;
 
 import com.fyp.dao.FeedbackDAO;
+import com.fyp.dao.SupervisorDAO;
+import com.fyp.model.Account;
 import com.fyp.model.Feedback;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -21,29 +24,34 @@ public class SupervisorFeedbackServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        // 1. Retrieve data from the form
+
+        HttpSession session = request.getSession();
+        Account user = (Account) session.getAttribute("user");
+
+        // 1. Retrieve data
         String content = request.getParameter("feedbackContent");
-        String pIdStr = request.getParameter("projectId");
-        String weekStr = request.getParameter("week");
-        
-        int projectId = Integer.parseInt(pIdStr);
-        int weekNumber = Integer.parseInt(weekStr);
-        
-        // 2. Create Feedback Object
+        int projectId = Integer.parseInt(request.getParameter("projectId"));
+        int weekNumber = Integer.parseInt(request.getParameter("week"));
+        // We need studentId to redirect back correctly
+        String studentId = request.getParameter("studentId");
+
+        SupervisorDAO sDao = new SupervisorDAO();
+        int supervisorId = sDao.getSupervisorId(user.getAccountId());
+
+        // 2. Create Object
         Feedback f = new Feedback();
         f.setContent(content);
         f.setProjectId(projectId);
         f.setWeekNumber(weekNumber);
-        f.setDateGiven(Date.valueOf(LocalDate.now())); // Current Date
-        f.setSupervisorId(1); // Hardcoded Supervisor ID 1 for this assignment
-        
-        // 3. Save to Database
+        f.setDateGiven(Date.valueOf(LocalDate.now()));
+        f.setSupervisorId(supervisorId);
+
+        // 3. Save (Upsert)
         FeedbackDAO dao = new FeedbackDAO();
-        dao.addFeedback(f);
-        
-        // 4. Redirect back to the view page
-        // We pass the projectId back so the page reloads the correct student
-        response.sendRedirect("SupervisorProgressServlet?projectId=" + projectId);
+        dao.saveOrUpdateFeedback(f);
+
+        // 4. Redirect Back with Success Message
+        response.sendRedirect(request.getContextPath()
+                + "/SupervisorMilestoneServlet?studentId=" + studentId + "&week=" + weekNumber + "&alert=success");
     }
 }

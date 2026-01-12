@@ -8,33 +8,65 @@ import com.fyp.model.Feedback;
 import com.fyp.util.DBConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.ResultSet;
 
 public class FeedbackDAO {
 
-    public void addFeedback(Feedback f) {
-        Connection con = null;
-        PreparedStatement ps = null;
+    // 1. Get Feedback for a specific Project and Week
+    public Feedback getFeedback(int projectId, int week) {
+        Feedback f = null;
         try {
-            con = DBConnection.getConnection();
-            // Matching the FEEDBACK table columns from your ERD
-            String sql = "INSERT INTO FEEDBACK (date_given, week_number, content, status, projectid, supervisorid) VALUES (?, ?, ?, ?, ?, ?)";
-            
-            ps = con.prepareStatement(sql);
-            ps.setDate(1, f.getDateGiven());
-            ps.setInt(2, f.getWeekNumber());
-            ps.setString(3, f.getContent());
-            ps.setString(4, "Unread"); // Default status
-            ps.setInt(5, f.getProjectId());
-            ps.setInt(6, f.getSupervisorId()); // We will use ID 1 for now
-            
-            ps.executeUpdate();
-            System.out.println("✅ Feedback saved successfully!");
-            
-        } catch (SQLException e) {
+            Connection con = DBConnection.getConnection();
+            String sql = "SELECT * FROM FEEDBACK WHERE projectid = ? AND week_number = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, projectId);
+            ps.setInt(2, week);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                f = new Feedback();
+                f.setFeedbackId(rs.getInt("feedbackid"));
+                f.setContent(rs.getString("content"));
+                f.setWeekNumber(rs.getInt("week_number"));
+                f.setProjectId(rs.getInt("projectid"));
+                f.setDateGiven(rs.getDate("date_given"));
+            }
+            con.close();
+        } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try { if(ps!=null)ps.close(); if(con!=null)con.close(); } catch(Exception e){}
+        }
+        return f;
+    }
+
+    // 2. Save or Update (Upsert Logic)
+    public void saveOrUpdateFeedback(Feedback f) {
+        try {
+            Connection con = DBConnection.getConnection();
+
+            // Check if exists
+            if (getFeedback(f.getProjectId(), f.getWeekNumber()) != null) {
+                // UPDATE
+                String sql = "UPDATE FEEDBACK SET content = ?, date_given = ? WHERE projectid = ? AND week_number = ?";
+                PreparedStatement ps = con.prepareStatement(sql);
+                ps.setString(1, f.getContent());
+                ps.setDate(2, f.getDateGiven());
+                ps.setInt(3, f.getProjectId());
+                ps.setInt(4, f.getWeekNumber());
+                ps.executeUpdate();
+            } else {
+                // INSERT
+                String sql = "INSERT INTO FEEDBACK (date_given, week_number, content, status, projectid, supervisorid) VALUES (?, ?, ?, 'Unread', ?, ?)";
+                PreparedStatement ps = con.prepareStatement(sql);
+                ps.setDate(1, f.getDateGiven());
+                ps.setInt(2, f.getWeekNumber());
+                ps.setString(3, f.getContent());
+                ps.setInt(4, f.getProjectId());
+                ps.setInt(5, f.getSupervisorId());
+                ps.executeUpdate();
+            }
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
