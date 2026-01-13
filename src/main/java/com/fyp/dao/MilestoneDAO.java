@@ -137,9 +137,9 @@ public class MilestoneDAO {
 
     public int getProjectProgress(int projectId) {
         int total = 0, completed = 0;
-        String sql = "SELECT m.status FROM milestone m " + 
-                     "JOIN project_schedule ps ON m.project_schedule_id = ps.project_schedule_id " + 
-                     "WHERE ps.projectId = ?";
+        String sql = "SELECT m.status FROM MILESTONE m " + 
+                 "JOIN PROJECT_SCHEDULE ps ON m.project_schedule_id = ps.project_schedule_id " + 
+                 "WHERE ps.projectId = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, projectId);

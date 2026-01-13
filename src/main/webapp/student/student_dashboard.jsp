@@ -57,7 +57,7 @@
         <a href="${pageContext.request.contextPath}/CreateProjectServlet" class="nav-link"><i class="bi bi-folder-fill me-2"></i> My Project</a>
         <a href="${pageContext.request.contextPath}/MilestoneServlet" class="nav-link"><i class="bi bi-list-check me-2"></i> Milestones</a>
         <a href="${pageContext.request.contextPath}/profile.jsp" class="nav-link"><i class="bi bi-person-fill me-2"></i> User Profile</a>
-        <a href="feedback.jsp" class="nav-link"><i class="bi bi-chat-left-text-fill me-2"></i> Feedback</a>
+        <a href="${pageContext.request.contextPath}/StudentFeedbackServlet" class="nav-link"><i class="bi bi-chat-left-text-fill me-2"></i> Feedback</a>
         <a href="${pageContext.request.contextPath}/LoginServlet" class="nav-link mt-5 text-danger border-top pt-3"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
     </nav>
 </div>
@@ -66,7 +66,7 @@
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="fw-bold m-0">Student Dashboard</h4>
-        <span class="text-muted small">${pageContext.session.getAttribute("user").username}</span>
+        <span class="text-muted small">${pageContext.session.getAttribute("user").fullName}</span>
     </div>
 
     <c:choose>
@@ -90,10 +90,7 @@
                     <div class="welcome-banner">
                         <div class="row align-items-center">
                             <div class="col-md-8">
-                                <h2 class="fw-bold mb-1">${project.projectName}</h2>
-                                <p class="mb-3 opacity-75">
-                                    <i class="bi bi-person-badge me-2"></i> Supervisor: <strong>${project.supervisorName}</strong>
-                                </p>
+                                <h2 class="fw-bold mb-3">${project.projectName}</h2>
                                 
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <span class="badge bg-white text-primary px-3 py-1 rounded-pill fw-bold">

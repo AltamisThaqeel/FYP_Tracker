@@ -16,12 +16,15 @@ public class Project {
     private Date startDate;         // SQL: start_date
     private Date endDate;           // SQL: end_date
 
-    // --- FOREIGN KEYS (Integers to match DB) ---
+    // --- FOREIGN KEYS (Integers to match DB Columns) ---
     private int studentId;          // SQL: studentId INT
     private int supervisorId;       // SQL: supervisorId INT
+    
+    // [ADDED] These were missing but exist in your Database Table!
+    private int categoryId;         // SQL: categoryId INT
+    private int groupId;            // SQL: groupId INT
 
     // --- VIRTUAL FIELDS (For Display Only - Not in PROJECT table) ---
-    // These hold data we get by joining tables (e.g. joining SUPERVISOR table)
     private String supervisorName;
     private int progress;
     private String studentName;
@@ -37,7 +40,6 @@ public class Project {
     public int getProjectId() { return projectId; }
     public void setProjectId(int projectId) { this.projectId = projectId; }
 
-    // Maps to 'project_title'
     public String getProjectName() { return projectName; }
     public void setProjectName(String projectName) { this.projectName = projectName; }
     
@@ -69,12 +71,19 @@ public class Project {
     public Date getEndDate() { return endDate; }
     public void setEndDate(Date endDate) { this.endDate = endDate; }
 
-    // --- ID Links (Corrected to int) ---
+    // --- ID Links ---
     public int getStudentId() { return studentId; }
     public void setStudentId(int studentId) { this.studentId = studentId; }
     
     public int getSupervisorId() { return supervisorId; }
     public void setSupervisorId(int supervisorId) { this.supervisorId = supervisorId; }
+
+    // [ADDED] Getters for the missing Foreign Keys
+    public int getCategoryId() { return categoryId; }
+    public void setCategoryId(int categoryId) { this.categoryId = categoryId; }
+
+    public int getGroupId() { return groupId; }
+    public void setGroupId(int groupId) { this.groupId = groupId; }
 
     // --- Virtual / Display Fields ---
     public String getSupervisorName() { return supervisorName; }

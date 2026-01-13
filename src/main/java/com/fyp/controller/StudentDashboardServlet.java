@@ -46,6 +46,17 @@ public class StudentDashboardServlet extends HttpServlet {
                 request.setAttribute("project", myProject);
             }
         }
+        if (studentId != -1) {
+            Project myProject = pDao.getProjectByStudent(studentId);
+
+            if (myProject != null) {
+                int progress = mDao.getProjectProgress(myProject.getProjectId());
+                myProject.setProgress(progress);
+                request.setAttribute("project", myProject);
+            } else {
+                request.setAttribute("project", new Project()); 
+            }
+        }
 
         // 5. Forward to the JSP page
         request.getRequestDispatcher("student/student_dashboard.jsp").forward(request, response);
