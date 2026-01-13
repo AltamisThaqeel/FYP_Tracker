@@ -43,6 +43,13 @@ public class StudentFeedbackServlet extends HttpServlet {
             List<Feedback> feedbackList = fDao.getAllFeedbackByProject(project.getProjectId());
             request.setAttribute("feedbackList", feedbackList);
         }
+        String action = request.getParameter("action");
+        if ("markRead".equals(action)) {
+            int fbId = Integer.parseInt(request.getParameter("id"));
+            fDao.markAsRead(fbId);
+            response.setStatus(200); // Return success to the JavaScript fetch
+            return;
+        }
 
         // 3. Forward to the JSP
         request.getRequestDispatcher("student/feedback.jsp").forward(request, response);
