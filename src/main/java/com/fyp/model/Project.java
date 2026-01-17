@@ -24,7 +24,6 @@ public class Project {
 
     private int progress;
     private String categoryName;
-
     
     public Project() {}
 

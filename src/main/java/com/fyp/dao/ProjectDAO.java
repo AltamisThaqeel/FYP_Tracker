@@ -45,7 +45,7 @@ public class ProjectDAO {
             
             // Set the category name from the JOIN
             proj.setCategoryName(rs.getString("category_name"));
-            
+            proj.setProgress(rs.getInt("progress"));
             calculateAndSetWeeks(proj, rs.getDate("start_date"), rs.getDate("end_date"));
         }
     } catch (Exception e) {
@@ -82,7 +82,7 @@ public class ProjectDAO {
             // 3. Insert
             String sql = "INSERT INTO PROJECT (project_title, project_desc, project_obj, "
                        + "start_date, end_date, project_status, studentId, contact_phone, "
-                       + "project_type, categoryId, numOfWeeks) "
+                       + "project_type, categoryId, numOfWeeks, progress, category_name) "
                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
             ps = con.prepareStatement(sql);
@@ -97,6 +97,8 @@ public class ProjectDAO {
             ps.setString(9, p.getProjectType()); 
             ps.setInt(10, categoryId);           
             ps.setInt(11, weeks);
+            ps.setInt(12, p.getProgress()); 
+            ps.setString(13, p.getCategoryName());
 
             isSuccess = ps.executeUpdate() > 0;
 
@@ -127,7 +129,7 @@ public class ProjectDAO {
             // 3. Update Query
             String sql = "UPDATE PROJECT SET project_title=?, project_desc=?, project_obj=?, "
                        + "start_date=?, end_date=?, contact_phone=?, project_type=?, "
-                       + "categoryId=?, numOfWeeks=? "
+                       + "categoryId=?, numOfWeeks=?, progress=?, category_name=? "
                        + "WHERE projectid=? AND studentId=?";
 
             ps = con.prepareStatement(sql);
@@ -140,9 +142,10 @@ public class ProjectDAO {
             ps.setString(7, p.getProjectType());
             ps.setInt(8, categoryId);
             ps.setInt(9, weeks);
-            // WHERE clause
-            ps.setInt(10, p.getProjectId());
-            ps.setInt(11, p.getStudentId());
+            ps.setInt(10, p.getProgress());       
+            ps.setString(11, p.getCategoryName()); 
+            ps.setInt(12, p.getProjectId());
+            ps.setInt(13, p.getStudentId());
 
             isSuccess = ps.executeUpdate() > 0;
         } catch (Exception e) { 

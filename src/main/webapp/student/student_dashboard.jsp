@@ -86,30 +86,49 @@
             <c:otherwise>
                 <div class="row g-4">
                     <div class="col-12">
-                        <div class="welcome-banner">
-                            <div class="row align-items-center">
-                                <div class="col-md-8">
-                                    <h2 class="fw-bold mb-3">${project.projectTitle}</h2>
+                        <div class="d-flex align-items-stretch gap-3">
 
-                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                        <span class="badge bg-white text-primary px-3 py-1 rounded-pill fw-bold">
-                                            ${project.status}
-                                        </span>
-                                        <span class="badge bg-white bg-opacity-25 text-white px-3 py-1 rounded-pill">
-                                            ${project.categoryName}
-                                        </span>
+                            <c:if test="${totalProjects > 1}">
+                                <a href="StudentDashboardServlet?index=${currentIndex - 1}" 
+                                   class="btn btn-white shadow-sm d-flex align-items-center justify-content-center ${currentIndex == 0 ? 'disabled opacity-25' : ''}"
+                                   style="width: 50px; border-radius: 15px; background: white; border: 1px solid #eee;">
+                                    <i class="bi bi-chevron-left fs-4 text-primary"></i>
+                                </a>
+                            </c:if>
+
+                            <div class="welcome-banner flex-grow-1 mb-0">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h2 class="fw-bold mb-3">${project.projectTitle}</h2>
+
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <span class="badge bg-white text-primary px-3 py-1 rounded-pill fw-bold">
+                                                ${project.status}
+                                            </span>
+                                            <span class="badge bg-white bg-opacity-25 text-white px-3 py-1 rounded-pill">
+                                                ${project.categoryName}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4 text-end">
+                                        <h1 class="display-4 fw-bold mb-0">${project.progress}%</h1>
+                                        <small class="opacity-75">Completion Rate</small>
                                     </div>
                                 </div>
 
-                                <div class="col-md-4 text-end">
-                                    <h1 class="display-4 fw-bold mb-0">${project.progress}%</h1>
-                                    <small class="opacity-75">Completion Rate</small>
+                                <div class="progress-container">
+                                    <div class="progress-fill" style="width: ${project.progress}%;"></div>
                                 </div>
                             </div>
 
-                            <div class="progress-container">
-                                <div class="progress-fill" style="width: ${project.progress}%;"></div>
-                            </div>
+                            <c:if test="${totalProjects > 1}">
+                                <a href="StudentDashboardServlet?index=${currentIndex + 1}" 
+                                   class="btn btn-white shadow-sm d-flex align-items-center justify-content-center ${currentIndex == totalProjects - 1 ? 'disabled opacity-25' : ''}"
+                                   style="width: 50px; border-radius: 15px; background: white; border: 1px solid #eee;">
+                                    <i class="bi bi-chevron-right fs-4 text-primary"></i>
+                                </a>
+                            </c:if>
                         </div>
                     </div>
 
@@ -161,7 +180,7 @@
                         </div>
                     </div>
 
-                    <div class="row g-4 mt-4">
+                    <div class="row g-4 mt-2">
                         <div class="col-md-8">
                             <div class="stat-card">
                                 <h6 class="fw-bold text-muted mb-3">PROJECT TIMELINE PROGRESS</h6>
@@ -174,15 +193,19 @@
                         <div class="col-md-4">
                             <div class="stat-card" style="max-height: 400px; overflow-y: auto;">
                                 <h6 class="fw-bold text-muted mb-3">WEEKLY TASKS</h6>
+
                                 <c:forEach var="week" items="${chartLabelsArray}">
                                     <div class="mb-3 border-bottom pb-2">
                                         <div class="d-flex align-items-center mb-2">
                                             <span class="badge bg-primary rounded-pill me-2">Week ${week}</span>
                                             <div class="flex-grow-1 border-top opacity-25"></div>
                                         </div>
+
                                         <ul class="list-unstyled ps-2 mb-0">
                                             <c:set var="hasTasks" value="false" />
+
                                             <c:forEach var="m" items="${allProjectMilestones}">
+
                                                 <c:if test="${m.weekNum == week}">
                                                     <li class="small mb-1 d-flex align-items-center gap-2">
                                                         <i class="bi ${m.status eq 'Completed' ? 'bi-check-circle-fill text-success' : 'bi-circle text-muted'}"></i>
@@ -192,7 +215,9 @@
                                                     </li>
                                                     <c:set var="hasTasks" value="true" />
                                                 </c:if>
+
                                             </c:forEach>
+
                                             <c:if test="${not hasTasks}">
                                                 <li class="small text-muted fst-italic">No tasks listed</li>
                                             </c:if>
