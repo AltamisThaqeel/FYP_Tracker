@@ -2,9 +2,13 @@ package com.fyp.controller;
 
 import com.fyp.dao.MilestoneDAO;
 import com.fyp.dao.ProjectDAO;
+import com.fyp.dao.FeedbackDAO;
+import com.fyp.model.Milestone;
 import com.fyp.model.Account;
 import com.fyp.model.Project;
 import java.io.IOException;
+import java.util.stream.IntStream;
+import java.util.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -22,7 +26,6 @@ public class StudentDashboardServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Account user = (Account) session.getAttribute("user");
 
-        // 1. Security Check
         if (user == null) {
             response.sendRedirect("login.jsp");
             return;
@@ -30,16 +33,15 @@ public class StudentDashboardServlet extends HttpServlet {
 
         ProjectDAO pDao = new ProjectDAO();
         MilestoneDAO mDao = new MilestoneDAO();
+        FeedbackDAO fDao = new FeedbackDAO();
         
-        // 2. Get the real studentId using the accountId
+        
         int studentId = pDao.getStudentIdByAccount(user.getAccountId());
         
         if (studentId != -1) {
-            // 3. Fetch the project
             Project myProject = pDao.getProjectByStudent(studentId);
             
             if (myProject != null) {
-                // 4. Calculate REAL Progress based on Milestones
                 int progress = mDao.getProjectProgress(myProject.getProjectId());
                 myProject.setProgress(progress);
                 
@@ -57,8 +59,61 @@ public class StudentDashboardServlet extends HttpServlet {
                 request.setAttribute("project", new Project()); 
             }
         }
+        if (studentId != 1){
+            Project myProject = pDao.getProjectByStudent(studentId);
+            
+            if (myProject != null) {
+                int projectId = myProject.getProjectId();
 
-        // 5. Forward to the JSP page
+                int progress = mDao.getProjectProgress(projectId);
+                myProject.setProgress(progress);
+
+                int totalCount = mDao.countAllMilestonesForProject(projectId);
+                int completedCount = mDao.countCompletedMilestonesForProject(projectId);
+                int currentWeek = 1; 
+                int thisWeekMilestones = mDao.getMilestonesByProjectAndWeek(projectId, currentWeek).size();
+                int upcomingCount = mDao.getMilestonesByProjectAndWeek(projectId, currentWeek + 1).size();
+                int feedbackCount = fDao.getAllFeedbackByProject(projectId).size();
+                
+                List<Integer> completedPerWeek = new ArrayList<>();
+                List<Integer> totalPerWeek = new ArrayList<>();
+                int totalWeeks = myProject.getNumOfWeeks(); // Corrected getter from your Project.java
+
+                for (int i = 1; i <= totalWeeks; i++) {
+                    List<Milestone> weekMilestones = mDao.getMilestonesByProjectAndWeek(projectId, i);
+                    int completed = 0;
+                    for (Milestone m : weekMilestones) {
+                        if ("Completed".equalsIgnoreCase(m.getStatus())) {
+                            completed++;
+                        }
+                    }
+                    completedPerWeek.add(completed);
+                    totalPerWeek.add(weekMilestones.size());
+                }
+
+                String labelsJson = IntStream.rangeClosed(1, totalWeeks)
+                             .mapToObj(String::valueOf)
+                             .collect(java.util.stream.Collectors.joining(","));
+                String completedJson = completedPerWeek.stream()
+                                                     .map(String::valueOf)
+                                                     .collect(java.util.stream.Collectors.joining(","));
+                String totalJson = totalPerWeek.stream()
+                                               .map(String::valueOf)
+                                               .collect(java.util.stream.Collectors.joining(","));
+                
+                request.setAttribute("chartLabels", IntStream.rangeClosed(1, totalWeeks).toArray());
+                request.setAttribute("chartCompletedData", completedPerWeek);
+                request.setAttribute("chartTotalData", totalPerWeek);
+                
+                request.setAttribute("project", myProject);
+                request.setAttribute("totalCount", totalCount);
+                request.setAttribute("completedCount", completedCount);
+                request.setAttribute("upcomingCount", upcomingCount);
+                request.setAttribute("thisWeekCount", thisWeekMilestones);
+                request.setAttribute("feedbackCount", feedbackCount);
+            }
+            }
+            
         request.getRequestDispatcher("student/student_dashboard.jsp").forward(request, response);
     }
 }

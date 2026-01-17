@@ -45,6 +45,7 @@
             border-radius: 20px; border: 2px dashed #e9ecef; color: #6c757d;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -114,75 +115,103 @@
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="stat-card d-flex align-items-center gap-3">
                         <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
-                            <i class="bi bi-calendar-check fs-4"></i>
+                            <i class="bi bi-check-circle-fill fs-4"></i>
                         </div>
                         <div>
-                            <h5 class="fw-bold mb-0">${project.numOfWeeks} Weeks</h5>
-                            <small class="text-muted">Total Duration</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-4">
-                    <div class="stat-card d-flex align-items-center gap-3">
-                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle text-warning">
-                            <i class="bi bi-lightbulb fs-4"></i>
-                        </div>
-                        <div>
-                            <h5 class="fw-bold mb-0">${project.projectType}</h5>
-                            <small class="text-muted">Project Type</small>
+                            <h5 class="text-muted">Milestones Completed</h5>
+                            <h4 class="fw-bold mb-0">${completedCount} / ${totalCount}</h4>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <div class="stat-card d-flex align-items-center gap-3">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary">
+                            <i class="bi bi-calendar-event fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="text-muted">This Week Milestones</h5>
+                            <h4 class="fw-bold mb-0">${thisWeekCount}</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="stat-card d-flex align-items-center gap-3">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle text-warning">
+                            <i class="bi bi-hourglass-split fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="text-muted">Upcoming Milestones</h5>
+                            <h4 class="fw-bold mb-0">${upcomingCount}</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
                     <div class="stat-card d-flex align-items-center gap-3">
                         <div class="bg-info bg-opacity-10 p-3 rounded-circle text-info">
                             <i class="bi bi-chat-dots fs-4"></i>
                         </div>
                         <div>
-                            <h5 class="fw-bold mb-0">Feedback</h5>
-                            <small class="text-muted">Check Comments</small>
+                            <h5 class="text-muted">Feedback Messages</h5>
+                            <h4 class="fw-bold mb-0">${feedbackCount}</h4>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-8">
-                    <div class="stat-card">
-                        <h6 class="fw-bold text-muted mb-3">PROJECT DESCRIPTION</h6>
-                        <p class="text-secondary small" style="line-height: 1.6;">
-                            ${project.description}
-                        </p>
-                        <hr class="my-4 opacity-25">
-                        <div class="d-flex gap-2">
-                            <a href="${pageContext.request.contextPath}/CreateProjectServlet?projectId=${project.projectId}" class="btn btn-outline-primary rounded-pill px-4">
-                                <i class="bi bi-pencil-square me-2"></i>Edit Details
-                            </a>
-                            <a href="${pageContext.request.contextPath}/MilestoneServlet" class="btn btn-primary rounded-pill px-4">
-                                <i class="bi bi-list-check me-2"></i>Update Milestones
-                            </a>
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="stat-card">
+                            <h6 class="fw-bold text-muted mb-3">PROJECT TIMELINE PROGRESS</h6>
+                            <canvas id="milestoneChart" height="80"></canvas>
                         </div>
                     </div>
                 </div>
-                
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <h6 class="fw-bold text-muted mb-3">KEY DATES</h6>
-                        <ul class="list-unstyled small text-secondary">
-                            <li class="mb-3 d-flex justify-content-between">
-                                <span>Start Date:</span>
-                                <span class="fw-bold text-dark">${project.startDate}</span>
-                            </li>
-                            <li class="mb-3 d-flex justify-content-between">
-                                <span>End Date:</span>
-                                <span class="fw-bold text-dark">${project.endDate}</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+
+                <script>
+                    const labels = [${chartLabels}].map(w => 'Week ' + w);
+                    const completedData = [${chartCompletedData}];
+                    const totalData = [${chartTotalData}];
+
+                    const ctx = document.getElementById('milestoneChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Completed Tasks',
+                                data: completedData,
+                                borderColor: '#198754',
+                                backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                                fill: true,
+                                tension: 0.3
+                            }, {
+                                label: 'Total Tasks',
+                                data: totalData,
+                                borderColor: '#2563EB',
+                                borderDash: [5, 5],
+                                tension: 0.3
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: { 
+                                    beginAtZero: true, 
+                                    ticks: { stepSize: 1 },
+                                    title: { display: true, text: 'Milestones' } 
+                                },
+                                x: { 
+                                    title: { display: true, text: 'Timeline (Weeks)' } 
+                                }
+                            }
+                        }
+                    });
+                </script>
 
             </div>
         </c:otherwise>
