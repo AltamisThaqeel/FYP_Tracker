@@ -97,16 +97,21 @@ public class MilestoneDAO {
     // This is the specific method MilestoneServlet uses to ADD tasks dynamically
     public boolean addMilestone(String description, int projectId, int weekNum) {
         try (Connection con = DBConnection.getConnection()) {
+            // This is the critical part: finding the ID for the specific week
             int scheduleId = getOrCreateSchedule(con, projectId, weekNum);
-            String sql = "INSERT INTO milestone (milestone_desc, status, project_schedule_id) VALUES (?, 'Not Started', ?)";
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, description);
-            ps.setInt(2, scheduleId);
-            return ps.executeUpdate() > 0;
+
+            if (scheduleId != -1) {
+                String sql = "INSERT INTO milestone (milestone_desc, status, project_schedule_id) VALUES (?, 'Not Started', ?)";
+                try (PreparedStatement ps = con.prepareStatement(sql)) {
+                    ps.setString(1, description);
+                    ps.setInt(2, scheduleId);
+                    return ps.executeUpdate() > 0;
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 
     // Helper to auto-create schedule if it doesn't exist for that week

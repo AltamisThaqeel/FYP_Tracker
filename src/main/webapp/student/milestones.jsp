@@ -200,10 +200,10 @@
                 <form action="${pageContext.request.contextPath}/MilestoneServlet" method="POST" class="mb-4">
                     <input type="hidden" name="action" value="add">
                     <input type="hidden" name="projectId" value="${currentProject.projectId}">
-                    <input type="hidden" name="weekNum" value="${selectedWeek}">
-                    
+                    <input type="hidden" name="weekNum" value="${selectedWeek}"> 
+
                     <div class="d-flex gap-2">
-                        <input type="text" name="taskDesc" class="task-input" placeholder="Type a new task and press Enter..." required>
+                        <input type="text" name="taskDesc" class="task-input" placeholder="Type a new task..." required>
                         <button type="submit" class="btn btn-primary rounded-circle shadow-sm" style="width: 45px; height: 45px;">
                             <i class="bi bi-plus-lg"></i>
                         </button>

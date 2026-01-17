@@ -77,17 +77,28 @@ public class MilestoneServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String action = request.getParameter("action");
         MilestoneDAO dao = new MilestoneDAO();
-        
+
         String projectId = request.getParameter("projectId");
         String weekNum = request.getParameter("weekNum");
 
+        // DEBUG: Check if the values are reaching the Servlet correctly
+        System.out.println("--- Milestone Debug ---");
+        System.out.println("Action: " + action);
+        System.out.println("Project ID: " + projectId);
+        System.out.println("Week Number Received: " + weekNum);
+
         if ("add".equals(action)) {
             String taskDesc = request.getParameter("taskDesc");
-            dao.addMilestone(taskDesc, Integer.parseInt(projectId), Integer.parseInt(weekNum));
-            
+
+            // Final sanity check: ensure weekNum isn't null before parsing
+            int week = Integer.parseInt(weekNum);
+            int pid = Integer.parseInt(projectId);
+
+            dao.addMilestone(taskDesc, pid, week);
+
         } else if ("complete".equals(action)) {
             int milestoneId = Integer.parseInt(request.getParameter("milestoneId"));
             String status = request.getParameter("status"); 
