@@ -3,13 +3,19 @@
 <%
     // 1. GET USER & ROLE FROM SESSION
     Account user = (Account) session.getAttribute("user");
-    String role = (String) session.getAttribute("role"); // "Student" or "Supervisor"
+    String role = (String) session.getAttribute("role");
 
     // 2. SECURITY CHECK
     if (user == null || role == null) {
         response.sendRedirect("login.jsp");
         return;
     }
+
+    // 3. CHECK IF ADMIN
+    boolean isAdmin = "Admin".equalsIgnoreCase(role);
+
+    // Apply special class for Admin Sidebar
+    String sidebarClass = isAdmin ? "sidebar admin-sidebar" : "sidebar";
 %>
 
 <!DOCTYPE html>
@@ -26,16 +32,37 @@
                 font-family: 'Segoe UI', sans-serif;
             }
 
-            /* Sidebar Styling */
+            /* --- DEFAULT SIDEBAR (White - for Student/Supervisor) --- */
             .sidebar {
                 width: 250px;
                 height: 100vh;
                 position: fixed;
-                background-color: #FFFFFF;
-                border-right: 1px solid #eee;
                 padding: 20px;
+                background-color: #FFFFFF;
+                color: inherit;
+                border-right: 1px solid #eee;
+                transition: all 0.3s;
             }
-            .sidebar-brand {
+            .sidebar .nav-link {
+                color: #6C757D;
+                padding: 12px 15px; /* Matches Dashboard padding */
+                margin-bottom: 5px;
+                border-radius: 8px;
+                font-weight: 500;
+                text-decoration: none;
+                display: block;
+            }
+            .sidebar .nav-link:hover {
+                background-color: #f1f5f9;
+                color: #2563EB;
+            }
+            .sidebar .nav-link.active {
+                background-color: #2563EB;
+                color: white;
+                box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+            }
+            .sidebar .sidebar-brand {
+                color: #0d6efd;
                 font-weight: bold;
                 font-size: 1.2rem;
                 margin-bottom: 30px;
@@ -43,25 +70,35 @@
                 align-items: center;
                 gap: 10px;
             }
-            .nav-link {
-                color: #6C757D;
-                padding: 10px 15px;
-                margin-bottom: 5px;
-                border-radius: 10px;
-                font-weight: 500;
-                text-decoration: none;
+
+            /* --- ADMIN SIDEBAR OVERRIDES (Dark Theme) --- */
+            .sidebar.admin-sidebar {
+                background-color: #1e293b !important; /* Dark Blue Background */
+                color: #ffffff !important;
+                border-right: none !important;
             }
-            .nav-link:hover {
-                background-color: #f1f5f9;
-                color: #2563EB;
+
+            /* Admin Nav Links */
+            .sidebar.admin-sidebar .nav-link {
+                color: #cbd5e1 !important; /* Light Grey Text */
             }
-            .nav-link.active {
-                background-color: #2563EB;
-                color: white;
-                box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+
+            /* Admin Hover State */
+            .sidebar.admin-sidebar .nav-link:hover {
+                background-color: #334155 !important;
+                color: #ffffff !important;
             }
-            .nav-link i {
-                margin-right: 10px;
+
+            /* Admin Active State - MATCHES DASHBOARD (Dark Grey/Blue, No Shadow) */
+            .sidebar.admin-sidebar .nav-link.active {
+                background-color: #334155 !important;
+                color: white !important;
+                box-shadow: none !important;
+            }
+
+            /* Admin Logout Text */
+            .sidebar.admin-sidebar .text-danger {
+                color: #ef4444 !important; /* Bright Red */
             }
 
             /* Main Content */
@@ -123,34 +160,43 @@
 
         <script>
             function handleEdit() {
-                // Updated to use the correct getter
                 const newName = prompt("Edit Full Name:", "<%= user.getFullName() %>");
                 if (newName) {
                     document.getElementById("userNameDisplay").innerText = newName;
                     document.getElementById("mainNameDisplay").innerText = newName;
-                    alert("Profile name updated (visual only)!");
+                    alert("Name changed (Visual update only).");
                 }
             }
         </script>
     </head>
     <body>
 
-        <div class="sidebar">
-            <div class="sidebar-brand text-primary">
+        <div class="<%= sidebarClass %>">
+
+            <%-- DYNAMIC HEADER STRUCTURE --%>
+            <% if(isAdmin) { %>
+            <div class="fw-bold mb-1 fs-4 text-white">
                 <i class="bi bi-mortarboard-fill"></i> FYP Tracker
             </div>
+            <div class="fw-bold mb-5 fs-6 text-white"><i class="bi bi-shield-lock-fill me-2"></i> Admin Panel</div>
+            <% } else { %>
+            <div class="sidebar-brand">
+                <i class="bi bi-mortarboard-fill"></i> FYP Tracker
+            </div>
+            <% } %>
+
             <nav class="nav flex-column">
 
-                <%-- SCENARIO: STUDENT IS LOGGED IN --%>
+                <%-- 1. STUDENT MENU --%>
                 <% if ("Student".equalsIgnoreCase(role)) { %>
                 <a href="${pageContext.request.contextPath}/StudentDashboardServlet" class="nav-link"><i class="bi bi-grid-fill"></i> Dashboard</a>
                 <a href="${pageContext.request.contextPath}/CreateProjectServlet" class="nav-link"><i class="bi bi-folder-fill"></i> My Project</a>
                 <a href="${pageContext.request.contextPath}/MilestoneServlet" class="nav-link"><i class="bi bi-list-check"></i> Milestones</a>
-                <a href="${pageContext.request.contextPath}/StudentFeedbackServlet" class="nav-link"><i class="bi bi-chat-left-text-fill me-2"></i> Supervisor Feedback</a>
                 <a href="${pageContext.request.contextPath}/profile.jsp" class="nav-link active"><i class="bi bi-person-fill"></i> User Profile</a>
+                <a href="${pageContext.request.contextPath}/StudentFeedbackServlet" class="nav-link"><i class="bi bi-chat-left-text-fill me-2"></i> Feedback</a>
                 <a href="${pageContext.request.contextPath}/logout.jsp" class="nav-link mt-5 text-danger border-top pt-3"><i class="bi bi-box-arrow-right"></i> Logout</a>
 
-                <%-- SCENARIO: SUPERVISOR IS LOGGED IN --%>
+                <%-- 2. SUPERVISOR MENU --%>
                 <% } else if ("Supervisor".equalsIgnoreCase(role)) { %>
                 <a href="${pageContext.request.contextPath}/SupervisorDashboardServlet" class="nav-link"><i class="bi bi-grid-fill me-2"></i> Dashboard</a>
                 <a href="${pageContext.request.contextPath}/StudentListServlet" class="nav-link"><i class="bi bi-people-fill"></i> Student Projects</a>
@@ -159,7 +205,16 @@
                 <a href="${pageContext.request.contextPath}/logout.jsp" class="nav-link mt-5 text-danger border-top pt-3">
                     <i class="bi bi-box-arrow-right"></i> Logout
                 </a>
+
+                <%-- 3. ADMIN MENU --%>
+                <% } else if (isAdmin) { %>
+                <a href="AdminDashboardServlet" class="nav-link"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+                <a href="AdminAssignServlet" class="nav-link"><i class="bi bi-person-lines-fill me-2"></i> Assign Student</a>
+                <a href="AdminUsersServlet" class="nav-link"><i class="bi bi-people-fill me-2"></i> Manage Account</a>
+                <a href="profile.jsp" class="nav-link active"><i class="bi bi-person-fill me-2"></i> Profile</a>
+                <a href="${pageContext.request.contextPath}/logout.jsp" class="nav-link text-danger mt-5"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
                 <% } %>
+
             </nav>
         </div>
 
@@ -170,7 +225,6 @@
                 <div class="col-md-4">
                     <div class="card profile-card p-4 h-100">
                         <div class="text-center">
-                            <%-- FIXED: Used .getFullName() instead of .getName() --%>
                             <img src="https://ui-avatars.com/api/?name=<%= user.getFullName().replace(" ", "+") %>&background=random" class="profile-img" alt="Profile">
 
                             <h5 class="fw-bold mb-0" id="userNameDisplay"><%= user.getFullName() %></h5>
@@ -186,13 +240,14 @@
                             <div class="contact-item"><i class="bi bi-calendar"></i> Joined March 2024</div>
                         </div>
 
+                        <% if(!isAdmin) { %>
                         <hr class="my-4">
-
                         <div class="section-title">Quick Stats</div>
                         <div class="p-3 bg-light rounded mb-2 border-start border-4 border-primary">
                             <small class="text-muted d-block">Projects</small>
                             <span class="fw-bold text-dark">1 Active</span>
                         </div>
+                        <% } %>
                     </div>
                 </div>
 
@@ -207,13 +262,11 @@
                         <div class="row mb-4">
                             <div class="col-md-6 mb-3">
                                 <div class="info-label">Full Name</div>
-                                <%-- FIXED: Used .getFullName() --%>
                                 <div class="info-value" id="mainNameDisplay"><%= user.getFullName() %></div>
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <div class="info-label"><%= role.equals("Student") ? "Student ID" : "Staff ID" %></div>
-                                <%-- FIXED: Used .getAccountId() instead of .getId() --%>
+                                <div class="info-label">User ID</div>
                                 <div class="info-value"><%= user.getAccountId() %></div>
                             </div>
 
@@ -227,8 +280,8 @@
                             </div>
                         </div>
 
+                        <% if(!isAdmin) { %>
                         <hr>
-
                         <div class="section-title text-secondary mt-3">Academic Information</div>
                         <div class="row mb-4">
                             <div class="col-md-6 mb-3">
@@ -248,6 +301,8 @@
                                 <div class="info-value">Bachelor's Degree</div>
                             </div>
                         </div>
+                        <% } %>
+
                     </div>
                 </div>
             </div>

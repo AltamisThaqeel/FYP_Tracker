@@ -1,6 +1,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List"%>
 <%@page import="com.fyp.model.Project"%>
+<%@page import="com.fyp.model.Account"%>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -8,7 +10,6 @@
         <title>Supervisor Dashboard - FYP Tracker</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
         <style>
             body {
                 background-color: #F8F9FA;
@@ -76,61 +77,38 @@
         </div>
 
         <div class="main-content">
-            <h3 class="mb-4 fw-bold">Dashboard Overview</h3>
+            <h3 class="mb-4 fw-bold">Supervisor Dashboard Overview</h3>
 
             <div class="row g-3 mb-4">
                 <div class="col-md-3">
                     <div class="stat-card">
                         <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="text-muted text-uppercase small fw-bold">Active Students</h6>
-                                <h2 class="mb-0 fw-bold text-dark">${totalStudents}</h2>
-                            </div>
-                            <div class="bg-primary bg-opacity-10 p-2 rounded text-primary">
-                                <i class="bi bi-people-fill fs-4"></i>
-                            </div>
+                            <div><h6 class="text-muted small fw-bold">Active Students</h6><h2 class="mb-0 fw-bold text-dark">${totalStudents}</h2></div>
+                            <div class="bg-primary bg-opacity-10 p-2 rounded text-primary"><i class="bi bi-people-fill fs-4"></i></div>
                         </div>
                     </div>
                 </div>
-
                 <div class="col-md-3">
                     <div class="stat-card">
                         <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="text-muted text-uppercase small fw-bold">Completed Projects</h6>
-                                <h2 class="mb-0 fw-bold text-success">${completedProjects}</h2>
-                            </div>
-                            <div class="bg-success bg-opacity-10 p-2 rounded text-success">
-                                <i class="bi bi-trophy-fill fs-4"></i>
-                            </div>
+                            <div><h6 class="text-muted small fw-bold">Completed Projects</h6><h2 class="mb-0 fw-bold text-success">${completedProjects}</h2></div>
+                            <div class="bg-success bg-opacity-10 p-2 rounded text-success"><i class="bi bi-trophy-fill fs-4"></i></div>
                         </div>
                     </div>
                 </div>
-
                 <div class="col-md-3">
                     <div class="stat-card">
                         <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="text-muted text-uppercase small fw-bold">Due This Week</h6>
-                                <h2 class="mb-0 fw-bold text-warning">${weekMilestones}</h2>
-                            </div>
-                            <div class="bg-warning bg-opacity-10 p-2 rounded text-warning">
-                                <i class="bi bi-calendar-event-fill fs-4"></i>
-                            </div>
+                            <div><h6 class="text-muted small fw-bold">Due This Week</h6><h2 class="mb-0 fw-bold text-warning">${weekMilestones}</h2></div>
+                            <div class="bg-warning bg-opacity-10 p-2 rounded text-warning"><i class="bi bi-calendar-event-fill fs-4"></i></div>
                         </div>
                     </div>
                 </div>
-
                 <div class="col-md-3">
                     <div class="stat-card">
                         <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="text-muted text-uppercase small fw-bold">Total Milestones</h6>
-                                <h2 class="mb-0 fw-bold text-info">${totalMilestones}</h2>
-                            </div>
-                            <div class="bg-info bg-opacity-10 p-2 rounded text-info">
-                                <i class="bi bi-list-check fs-4"></i>
-                            </div>
+                            <div><h6 class="text-muted small fw-bold">Total Milestones</h6><h2 class="mb-0 fw-bold text-info">${totalMilestones}</h2></div>
+                            <div class="bg-info bg-opacity-10 p-2 rounded text-info"><i class="bi bi-list-check fs-4"></i></div>
                         </div>
                     </div>
                 </div>
@@ -154,12 +132,26 @@
                             <tbody>
                                 <%
                                     List<Project> list = (List<Project>) request.getAttribute("projectList");
+                                    List<Account> studentList = (List<Account>) request.getAttribute("studentList");
+
                                     if(list != null && !list.isEmpty()) {
                                         for(Project p : list) {
                                             String statusClass = "Completed".equalsIgnoreCase(p.getStatus()) ? "bg-completed" : "bg-active";
+
+                                            // --- MANUAL NAME LOOKUP ---
+                                            String studentName = "ID: " + p.getStudentId();
+                                            if(studentList != null) {
+                                                for(Account s : studentList) {
+                                                    // Note: getAccountId here holds the StudentID due to DAO logic
+                                                    if(s.getAccountId() == p.getStudentId()) {
+                                                        studentName = s.getFullName();
+                                                        break;
+                                                    }
+                                                }
+                                            }
                                 %>
                                 <tr>
-                                    <td class="ps-4 fw-bold"><%= p.getStudentName() %></td>
+                                    <td class="ps-4 fw-bold"><%= studentName %></td>
                                     <td><%= p.getTitle() %></td>
                                     <td style="width: 30%;">
                                         <div class="d-flex align-items-center">

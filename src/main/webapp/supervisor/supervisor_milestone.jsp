@@ -1,8 +1,10 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="jakarta.tags.core" %>
 <%@page import="java.util.List"%>
 <%@page import="com.fyp.model.Project"%>
 <%@page import="com.fyp.model.Milestone"%>
 <%@page import="com.fyp.model.Feedback"%>
+<%@page import="com.fyp.model.Account"%>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -30,8 +32,6 @@
                 margin-left: 250px;
                 padding: 30px;
             }
-
-            /* Navigation Styles */
             .nav-link {
                 padding: 10px 15px;
                 font-weight: 500;
@@ -41,8 +41,6 @@
                 background-color: #f1f5f9;
                 color: #2563EB !important;
             }
-
-            /* Stats Card Design */
             .stats-card {
                 background: white;
                 border-radius: 12px;
@@ -57,7 +55,6 @@
             .border-green {
                 border-left-color: #10B981;
             }
-
             .milestone-card {
                 background: white;
                 border-radius: 12px;
@@ -74,7 +71,6 @@
             .milestone-row:last-child {
                 border-bottom: none;
             }
-
             .badge-status {
                 padding: 6px 12px;
                 border-radius: 20px;
@@ -89,7 +85,6 @@
                 background-color: #f3f4f6;
                 color: #6b7280;
             }
-
             .form-control:focus {
                 box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
             }
@@ -102,32 +97,24 @@
                     window.location.href = "SupervisorMilestoneServlet?studentId=" + studentId;
             }
 
-            function changeWeek(week) {
+            // --- NEW: Switch Project for Same Student ---
+            function changeProject(projectId) {
                 const studentId = "<%= (request.getAttribute("selectedProject") != null) ? ((Project)request.getAttribute("selectedProject")).getStudentId() : "" %>";
-                if (studentId) {
-                    window.location.href = "SupervisorMilestoneServlet?studentId=" + studentId + "&week=" + week;
+                if (studentId && projectId) {
+                    window.location.href = "SupervisorMilestoneServlet?studentId=" + studentId + "&projectId=" + projectId;
                 }
             }
 
-            window.onload = function () {
-                const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.get('alert') === 'success') {
-                    const toast = new bootstrap.Toast(document.getElementById('successToast'));
-                    toast.show();
+            function changeWeek(week) {
+                const studentId = "<%= (request.getAttribute("selectedProject") != null) ? ((Project)request.getAttribute("selectedProject")).getStudentId() : "" %>";
+                const projectId = "<%= (request.getAttribute("selectedProject") != null) ? ((Project)request.getAttribute("selectedProject")).getProjectId() : "" %>";
+                if (studentId) {
+                    window.location.href = "SupervisorMilestoneServlet?studentId=" + studentId + "&projectId=" + projectId + "&week=" + week;
                 }
             }
         </script>
     </head>
     <body>
-
-        <div class="toast-container position-fixed bottom-0 end-0 p-3">
-            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body"><i class="bi bi-check-circle-fill me-2"></i> Feedback sent successfully!</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                </div>
-            </div>
-        </div>
 
         <div class="sidebar">
             <div class="sidebar-brand text-primary fw-bold mb-4 fs-5">
@@ -147,18 +134,20 @@
             <h3 class="fw-bold mb-4 text-start">Milestone Tracker</h3>
 
             <div class="row justify-content-center mb-5">
-                <div class="col-md-10 col-lg-8"> <div class="input-group bg-white p-2 rounded shadow-sm">
+                <div class="col-md-10 col-lg-8">
+                    <div class="input-group bg-white p-2 rounded shadow-sm">
                         <select id="studentSelect" class="form-select border-0 form-select-lg">
                             <option value="">Select Student to Track...</option>
                             <%
-                                List<Project> students = (List<Project>) request.getAttribute("allStudents");
+                                List<Account> studentAccounts = (List<Account>) request.getAttribute("studentList");
                                 Project selected = (Project) request.getAttribute("selectedProject");
-                                String selId = (selected != null) ? String.valueOf(selected.getStudentId()) : "";
-                                if(students != null) {
-                                    for(Project p : students) {
-                                        String sId = String.valueOf(p.getStudentId());
+                                String selStudentId = (selected != null) ? String.valueOf(selected.getStudentId()) : "";
+
+                                if(studentAccounts != null) {
+                                    for(Account acc : studentAccounts) {
+                                        String sId = String.valueOf(acc.getAccountId());
                             %>
-                            <option value="<%= sId %>" <%= sId.equals(selId) ? "selected" : "" %>><%= p.getStudentName() %></option>
+                            <option value="<%= sId %>" <%= sId.equals(selStudentId) ? "selected" : "" %>><%= acc.getFullName() %></option>
                             <% } } %>
                         </select>
                         <button class="btn btn-primary px-4 fw-bold" onclick="searchStudent()">SEARCH</button>
@@ -170,16 +159,46 @@
                int currentWeek = (Integer) request.getAttribute("selectedWeek");
                Integer tWeeks = (Integer) request.getAttribute("totalWeeks");
                int maxWeeks = (tWeeks != null) ? tWeeks : 14;
+
+               // Name Lookup
+               String selectedName = "ID: " + selected.getStudentId();
+               if(studentAccounts != null) {
+                   for(Account acc : studentAccounts) {
+                       if(acc.getAccountId() == selected.getStudentId()) {
+                           selectedName = acc.getFullName();
+                           break;
+                       }
+                   }
+               }
             %>
 
             <div class="row g-4 mb-4">
                 <div class="col-md-4">
                     <div class="stats-card border-blue">
                         <p class="text-muted small text-uppercase fw-bold mb-1">Selected Student</p>
-                        <h5 class="fw-bold text-dark mb-0"><%= selected.getStudentName() %></h5>
-                        <small class="text-secondary"><%= selected.getTitle() %></small>
+                        <h5 class="fw-bold text-dark mb-3"><%= selectedName %></h5>
+
+                        <div class="form-group">
+                            <label class="small text-muted mb-1">Current Project:</label>
+                            <select class="form-select form-select-sm" onchange="changeProject(this.value)">
+                                <%
+                                    // Populate dropdown with this student's projects
+                                    List<Project> studentProjects = (List<Project>) request.getAttribute("studentProjects");
+                                    if(studentProjects != null) {
+                                        for(Project sp : studentProjects) {
+                                %>
+                                <option value="<%= sp.getProjectId() %>"
+                                        <%= (sp.getProjectId() == selected.getProjectId()) ? "selected" : "" %>>
+                                    <%= sp.getTitle() %>
+                                </option>
+                                <%      }
+                                    }
+                                %>
+                            </select>
+                        </div>
                     </div>
                 </div>
+
                 <div class="col-md-4">
                     <div class="stats-card border-green">
                         <p class="text-muted small text-uppercase fw-bold mb-1">Total Completed</p>
@@ -189,6 +208,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="col-md-4">
                     <div class="stats-card" style="border-left-color: #6b7280;">
                         <p class="text-muted small text-uppercase fw-bold mb-1">Total Milestones</p>

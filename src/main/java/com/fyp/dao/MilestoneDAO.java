@@ -284,4 +284,22 @@ public class MilestoneDAO {
         }
         return list;
     }
+
+    // ... inside MilestoneDAO class ...
+    // Method to Update Milestone Status
+    public boolean updateMilestoneStatus(int milestoneId, String status) {
+        try {
+            Connection con = DBConnection.getConnection();
+            String sql = "UPDATE MILESTONE SET status = ? WHERE milestone_id = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, status);
+            ps.setInt(2, milestoneId);
+            int rows = ps.executeUpdate();
+            con.close();
+            return rows > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

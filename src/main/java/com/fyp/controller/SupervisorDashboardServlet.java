@@ -38,6 +38,9 @@ public class SupervisorDashboardServlet extends HttpServlet {
         // 2. Fetch Projects
         List<Project> projects = dao.getProjectsWithDetails(supervisorId);
 
+        // --- ADDED: Fetch Student List for Name Lookup ---
+        List<Account> studentList = dao.getMyStudents(supervisorId);
+
         // 3. Calculate Dashboard Stats
         int totalStudents = projects.size();
         int completedProjects = 0;
@@ -51,7 +54,7 @@ public class SupervisorDashboardServlet extends HttpServlet {
                 completedProjects++;
             }
 
-            // --- FIX: Force 100% Progress if Status is Completed ---
+            // Force 100% Progress if Status is Completed
             if (isCompleted) {
                 p.setProgress(100);
             } else {
@@ -72,6 +75,7 @@ public class SupervisorDashboardServlet extends HttpServlet {
         request.setAttribute("totalMilestones", totalMilestones);
 
         request.setAttribute("projectList", projects);
+        request.setAttribute("studentList", studentList); // <--- PASS STUDENT LIST HERE
 
         request.getRequestDispatcher("supervisor/supervisor_dashboard.jsp").forward(request, response);
     }

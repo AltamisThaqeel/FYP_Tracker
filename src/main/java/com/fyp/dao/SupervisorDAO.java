@@ -1,9 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.fyp.dao;
 
+import com.fyp.model.Account;
 import com.fyp.model.Project;
 import com.fyp.util.DBConnection;
 import java.sql.Connection;
@@ -14,66 +11,58 @@ import java.util.List;
 
 public class SupervisorDAO {
 
-    // Get ALL projects assigned to a specific Supervisor ID
+    // 1. Get Projects By Supervisor ID (Simple)
     public List<Project> getProjectsBySupervisor(int supervisorId) {
         List<Project> list = new ArrayList<>();
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        
         try {
             con = DBConnection.getConnection();
-            // Select all projects for this supervisor
             String sql = "SELECT * FROM PROJECT WHERE SUPERVISORID = ?";
-            
             ps = con.prepareStatement(sql);
             ps.setInt(1, supervisorId);
             rs = ps.executeQuery();
-            
             while (rs.next()) {
                 Project p = new Project();
                 p.setProjectId(rs.getInt("projectid"));
                 p.setTitle(rs.getString("project_title"));
                 p.setDescription(rs.getString("project_desc"));
                 p.setStatus(rs.getString("project_status"));
-                p.setStudentId(rs.getInt("studentId")); // We will show Student ID since Name isn't in ERD
+                p.setStudentId(rs.getInt("studentId"));
                 p.setStartDate(rs.getDate("start_date"));
                 p.setEndDate(rs.getDate("end_date"));
-                
                 list.add(p);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try { if(rs!=null)rs.close(); if(ps!=null)ps.close(); if(con!=null)con.close(); } catch(Exception e){}
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (Exception e) {
+            }
         }
         return list;
     }
-    
-    // ADD THIS NEW METHOD FOR REGISTRATION:
+
+    // 2. Register Supervisor
     public void registerSupervisor(String phone, int accountId) {
-        Connection con = null;
-        PreparedStatement ps = null;
         try {
-            con = DBConnection.getConnection();
-            
-            // Insert new Supervisor
+            Connection con = DBConnection.getConnection();
             String sql = "INSERT INTO SUPERVISOR (phoneNum, position, accountid) VALUES (?, 'Lecturer', ?)";
-            
-            ps = con.prepareStatement(sql);
+            PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, phone);
             ps.setInt(2, accountId);
-            
             ps.executeUpdate();
-            
-        } catch (Exception e) { 
-            e.printStackTrace(); 
-        } finally {
-            try { if(ps!=null)ps.close(); if(con!=null)con.close(); } catch(Exception e){}
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
-    
-    // Get Projects WITH Student and Category Details
+
+    // 3. Get Projects WITH Details (UPDATED: Maps Phone Number)
     public List<Project> getProjectsWithDetails(int supervisorId) {
         List<Project> list = new ArrayList<>();
         Connection con = null;
@@ -83,15 +72,11 @@ public class SupervisorDAO {
         try {
             con = DBConnection.getConnection();
 
-            // --- FIXED SQL QUERY ---
-            // 1. We Select 'a.full_name' (from Account)
-            // 2. We JOIN 'ACCOUNT a' on s.accountid = a.accountid
             String sql = "SELECT p.*, a.full_name, s.phoneNum, c.category_name "
                     + "FROM PROJECT p "
-                    + "JOIN STUDENT s ON p.studentid = s.studentid "
-                    + "JOIN ACCOUNT a ON s.accountid = a.accountid "
-                    + // <--- CRITICAL JOIN ADDED
-                    "LEFT JOIN PROJECT_CATEGORY c ON p.categoryid = c.categoryid "
+                    + "LEFT JOIN STUDENT s ON p.studentid = s.studentid "
+                    + "LEFT JOIN ACCOUNT a ON s.accountid = a.accountid "
+                    + "LEFT JOIN PROJECT_CATEGORY c ON p.categoryid = c.categoryid "
                     + "WHERE p.supervisorid = ?";
 
             ps = con.prepareStatement(sql);
@@ -106,11 +91,15 @@ public class SupervisorDAO {
                 p.setStartDate(rs.getDate("start_date"));
                 p.setEndDate(rs.getDate("end_date"));
                 p.setStatus(rs.getString("project_status"));
-
-                // --- INT FIX CONFIRMED ---
                 p.setStudentId(rs.getInt("studentid"));
-
                 p.setCategoryName(rs.getString("category_name"));
+                p.setContactPhone(rs.getString("phoneNum"));
+
+                try {
+                    p.setProgress(rs.getInt("progress"));
+                } catch (Exception ex) {
+                    p.setProgress(0);
+                }
 
                 list.add(p);
             }
@@ -118,12 +107,6 @@ public class SupervisorDAO {
             e.printStackTrace();
         } finally {
             try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (ps != null) {
-                    ps.close();
-                }
                 if (con != null) {
                     con.close();
                 }
@@ -133,22 +116,51 @@ public class SupervisorDAO {
         return list;
     }
 
-    // Get Supervisor ID from Account ID 
+    // 4. Get Supervisor ID
     public int getSupervisorId(int accountId) {
         int supervisorId = -1;
+        try {
+            Connection con = DBConnection.getConnection();
+            String sql = "SELECT supervisorId FROM SUPERVISOR WHERE accountId = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, accountId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                supervisorId = rs.getInt("supervisorId");
+            }
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return supervisorId;
+    }
+
+    // 5. Get Students for Name Lookup (FIXED: Declared variables properly)
+    public List<Account> getMyStudents(int supervisorId) {
+        List<Account> list = new ArrayList<>();
+        // --- FIX: Variables declared here ---
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
 
         try {
             con = DBConnection.getConnection();
-            String sql = "SELECT supervisorId FROM SUPERVISOR WHERE accountId = ?";
+            String sql = "SELECT DISTINCT s.studentid, a.full_name, a.email "
+                    + "FROM PROJECT p "
+                    + "LEFT JOIN STUDENT s ON p.studentid = s.studentid "
+                    + "LEFT JOIN ACCOUNT a ON s.accountid = a.accountid "
+                    + "WHERE p.supervisorid = ? AND s.studentid IS NOT NULL";
+
             ps = con.prepareStatement(sql);
-            ps.setInt(1, accountId);
+            ps.setInt(1, supervisorId);
             rs = ps.executeQuery();
 
-            if (rs.next()) {
-                supervisorId = rs.getInt("supervisorId");
+            while (rs.next()) {
+                Account a = new Account();
+                a.setAccountId(rs.getInt("studentid")); // Use AccountID to hold StudentID
+                a.setFullName(rs.getString("full_name"));
+                a.setEmail(rs.getString("email"));
+                list.add(a);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -157,15 +169,21 @@ public class SupervisorDAO {
                 if (rs != null) {
                     rs.close();
                 }
+            } catch (Exception e) {
+            }
+            try {
                 if (ps != null) {
                     ps.close();
                 }
+            } catch (Exception e) {
+            }
+            try {
                 if (con != null) {
                     con.close();
                 }
             } catch (Exception e) {
             }
         }
-        return supervisorId;
+        return list;
     }
 }

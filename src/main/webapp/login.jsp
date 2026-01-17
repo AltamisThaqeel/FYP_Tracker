@@ -82,6 +82,7 @@
                         <select name="role" class="form-select">
                             <option value="student">Student</option>
                             <option value="supervisor">Supervisor</option>
+                            <option value="admin">Admin</option>
                         </select>
                     </div>
 

@@ -9,7 +9,8 @@ public class Account {
     private String email;
     private String password;
     private String roleType; 
-    private String fullName; 
+    private String fullName;
+    private String status;
 
     public Account() {}
 
@@ -29,5 +30,15 @@ public class Account {
     public String getRoleType() { return roleType; }
     public void setRoleType(String roleType) { this.roleType = roleType; }
     public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

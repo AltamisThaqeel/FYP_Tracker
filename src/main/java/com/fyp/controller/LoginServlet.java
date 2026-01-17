@@ -21,49 +21,50 @@ public class LoginServlet extends HttpServlet {
         // 1. Retrieve Form Data
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-        String selectedRole = request.getParameter("role"); // "student" or "supervisor"
-        String rememberMe = request.getParameter("remember"); // Checkbox value
+        String selectedRole = request.getParameter("role");
+        String rememberMe = request.getParameter("remember");
 
-        // 2. Validate Credentials against Database
+        // 2. Validate Credentials
         AccountDAO dao = new AccountDAO();
         Account account = dao.login(email, password);
 
         if (account == null) {
-            // Case A: Account not found or wrong password
             response.sendRedirect("login.jsp?error=InvalidCredentials");
             return;
         }
 
         // 3. Validate Role Selection
-        // The DB role (e.g., "STUDENT") might differ in case from dropdown ("student")
         if (!account.getRoleType().equalsIgnoreCase(selectedRole)) {
-            // Case B: Correct password, but wrong role selected
             response.sendRedirect("login.jsp?error=RoleMismatch");
             return;
         }
 
-        // 4. Handle "Remember Me" Cookie
+        // 4. Handle "Remember Me"
         Cookie cookie = new Cookie("c_email", email);
         if (rememberMe != null) {
-            cookie.setMaxAge(60 * 60 * 24 * 7); // Store for 7 Days
+            cookie.setMaxAge(60 * 60 * 24 * 7); // 7 Days
         } else {
-            cookie.setMaxAge(0); // Delete cookie if unchecked
+            cookie.setMaxAge(0);
         }
         response.addCookie(cookie);
 
-        // 5. Create Session (Login Success)
+        // 5. Create Session & Redirect
         HttpSession session = request.getSession();
         session.setAttribute("user", account);
         session.setAttribute("role", account.getRoleType());
 
-        // Save the specific ID (StudentId or SupervisorId) for queries later
-        // Note: You'll need to fetch the specific ID using Account ID,
-        // but for now, we redirect to the correct dashboard.
-        // 6. Redirect to Dashboard
-        if ("Supervisor".equalsIgnoreCase(account.getRoleType())) {
-            response.sendRedirect("SupervisorDashboardServlet");
-        } else {
+        // --- FIXED REDIRECT LOGIC (One block only) ---
+        if ("Student".equalsIgnoreCase(account.getRoleType())) {
             response.sendRedirect("StudentDashboardServlet");
+
+        } else if ("Supervisor".equalsIgnoreCase(account.getRoleType())) {
+            response.sendRedirect("SupervisorDashboardServlet");
+
+        } else if ("Admin".equalsIgnoreCase(account.getRoleType())) {
+            response.sendRedirect("AdminDashboardServlet");
+
+        } else {
+            response.sendRedirect("login.jsp?error=UnknownRole");
         }
     }
 }
