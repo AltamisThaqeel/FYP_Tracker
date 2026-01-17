@@ -1,6 +1,7 @@
 package com.fyp.dao;
 
 import com.fyp.model.Account;
+import com.fyp.model.Supervisor;
 import com.fyp.model.Project;
 import com.fyp.util.DBConnection;
 import java.sql.Connection;
@@ -185,5 +186,36 @@ public class SupervisorDAO {
             }
         }
         return list;
+    }
+    public boolean updateSupervisorProfile(int supervisorId, String phone, String position) {
+        String sql = "UPDATE SUPERVISOR SET phoneNum = ?, position = ? WHERE supervisorId = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, phone);
+            ps.setString(2, position);
+            ps.setInt(3, supervisorId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); return false; }
+    }
+    public Supervisor getSupervisorByAccount(int accountId) {
+        Supervisor s = null;
+        String sql = "SELECT * FROM SUPERVISOR WHERE accountId = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, accountId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    s = new Supervisor();
+                    s.setSupervisorId(rs.getInt("supervisorId"));
+                    s.setPhoneNum(rs.getString("phoneNum"));
+                    s.setPosition(rs.getString("position"));
+                    s.setAccountId(rs.getInt("accountId"));
+                    s.setDepartmentId(rs.getInt("departmentId"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return s;
     }
 }

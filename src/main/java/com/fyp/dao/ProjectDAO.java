@@ -83,7 +83,7 @@ public class ProjectDAO {
             String sql = "INSERT INTO PROJECT (project_title, project_desc, project_obj, "
                        + "start_date, end_date, project_status, studentId, contact_phone, "
                        + "project_type, categoryId, numOfWeeks, progress, category_name) "
-                       + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                       + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
             ps = con.prepareStatement(sql);
             ps.setString(1, p.getProjectTitle());
@@ -180,10 +180,12 @@ public class ProjectDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Project p = new Project();
-                p.setProjectId(rs.getInt("projectid"));
+                p.setProjectId(rs.getInt("projectId"));
                 p.setProjectTitle(rs.getString("project_title"));
                 p.setStartDate(rs.getDate("start_date"));
                 p.setEndDate(rs.getDate("end_date"));
+                p.setStatus(rs.getString("project_status"));
+                p.setCategoryName(rs.getString("category_name"));
                 
                 int dbWeeks = rs.getInt("numOfWeeks");
                 if (dbWeeks > 0) p.setNumOfWeeks(dbWeeks);

@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     
     <style>
-        body { background-color: #F8F9FA; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f3f4f6; font-family: 'Segoe UI', sans-serif; }
         .sidebar { width: 250px; height: 100vh; position: fixed; background-color: #FFFFFF; border-right: 1px solid #eee; padding: 20px; }
         .nav-link { color: #6C757D; padding: 10px 15px; margin-bottom: 5px; border-radius: 10px; font-weight: 500; text-decoration: none; }
         .nav-link:hover { background-color: #f1f5f9; color: #2563EB; }

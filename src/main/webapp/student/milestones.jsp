@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     
     <style>
-        body { background-color: #F8F9FA; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f3f4f6; font-family: 'Segoe UI', sans-serif; }
         .sidebar { width: 250px; height: 100vh; position: fixed; background-color: #FFFFFF; border-right: 1px solid #eee; padding: 20px; }
         .sidebar-brand { font-weight: bold; font-size: 1.2rem; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
         .nav-link { color: #6C757D; padding: 10px 15px; margin-bottom: 5px; border-radius: 10px; font-weight: 500; text-decoration: none; }
@@ -20,26 +20,95 @@
         /* --- DESIGN UPDATES --- */
         .project-selector-bar { background: white; padding: 15px 25px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; }
         
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-workspace {
+            animation: fadeInDown 0.6s ease-out forwards;
+        }
+        @keyframes fadeInUpTask {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes slideInTab {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
         .week-tabs .nav-link { 
             border: none; margin-bottom: 8px; border-radius: 10px; 
             text-align: left; padding: 12px 20px; 
             color: #6c757d; background: transparent; font-weight: 600; 
             transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            animation: slideInTab 0.4s ease forwards;
+            opacity: 0;
         }
+        .week-tabs .nav-link:nth-child(1) { animation-delay: 0.05s; }
+        .week-tabs .nav-link:nth-child(2) { animation-delay: 0.1s; }
+        .week-tabs .nav-link:nth-child(3) { animation-delay: 0.15s; }
+        .week-tabs .nav-link:nth-child(4) { animation-delay: 0.2s; }
+        .week-tabs .nav-link:nth-child(n+5) { animation-delay: 0.25s; }
         .week-tabs .nav-link:hover { background-color: #e9ecef; color: #2563EB; }
-        .week-tabs .nav-link.active { background-color: #2563EB; color: white; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
         
-        .task-card { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .week-tabs .nav-link.active {
+            background-color: #2563EB;
+            color: white;
+            transform: scale(1.05); /* Slight pop for active tab */
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+        }
+        .week-tabs .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: #2563EB;
+            transform: translateX(-4px);
+            transition: transform 0.2s ease;
+        }
+
+        .week-tabs .nav-link:hover::before {
+            transform: translateX(0);
+        }
+        
+        .task-card { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: all 0.4s ease; }
         .task-input { border: 2px solid #f1f3f5; background: #f8f9fa; padding: 12px 20px; border-radius: 30px; width: 100%; transition: 0.3s; }
         .task-input:focus { border-color: #2563EB; background: white; outline: none; }
         
         .milestone-item { 
             background: #ffffff; padding: 15px 20px; border-radius: 12px; margin-bottom: 12px; 
             border: 1px solid #f1f3f5; display: flex; align-items: center; 
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease;animation: fadeInUpTask 0.5s ease forwards;
+            opacity: 0;
         }
+        .milestone-item:nth-child(1) { animation-delay: 0.1s; }
+        .milestone-item:nth-child(2) { animation-delay: 0.15s; }
+        .milestone-item:nth-child(3) { animation-delay: 0.2s; }
+        .milestone-item:nth-child(4) { animation-delay: 0.25s; }
+        .milestone-item:nth-child(5) { animation-delay: 0.3s; }
+        .milestone-item:nth-child(n+6) { animation-delay: 0.35s; }
         .milestone-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .milestone-item.completed { border-left: 5px solid #198754; background-color: #f8fffb; }
+        .milestone-item .form-check-input:checked {
+            transition: background-color 0.3s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: scale(1.1);
+        }
     </style>
 
     <script>
@@ -72,26 +141,28 @@
 <div class="main-content">
     
     <div class="project-selector-bar mb-4">
-        <div class="d-flex align-items-center gap-3">
-            <div class="bg-primary bg-opacity-10 p-2 rounded-circle text-primary">
-                <i class="bi bi-folder2-open fs-5"></i>
-            </div>
-            <div>
-                <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 0.75rem;">Current Workspace</small>
-                <select class="form-select border-0 bg-transparent fw-bold text-dark p-0 shadow-none" 
-                        style="cursor: pointer; font-size: 1.1rem;"
-                        onchange="window.location.href='${pageContext.request.contextPath}/MilestoneServlet?projectId=' + this.value">
-                    
-                    <c:forEach items="${projectList}" var="p">
-                        <option value="${p.projectId}" ${p.projectId == projectId ? 'selected' : ''}>
-                            ${p.projectTitle}
-                        </option>
-                    </c:forEach>
-                    
-                    <c:if test="${empty projectList}">
-                        <option disabled>No projects found</option>
-                    </c:if>
-                </select>
+        <div class="animate-workspace">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-primary bg-opacity-10 p-2 rounded-circle text-primary">
+                    <i class="bi bi-folder2-open fs-5"></i>
+                </div>
+                <div>
+                    <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 0.75rem;">Current Workspace</small>
+                    <select class="form-select border-0 bg-transparent fw-bold text-dark p-0 shadow-none" 
+                            style="cursor: pointer; font-size: 1.1rem;"
+                            onchange="window.location.href='${pageContext.request.contextPath}/MilestoneServlet?projectId=' + this.value">
+
+                        <c:forEach items="${projectList}" var="p">
+                            <option value="${p.projectId}" ${p.projectId == projectId ? 'selected' : ''}>
+                                ${p.projectTitle}
+                            </option>
+                        </c:forEach>
+
+                        <c:if test="${empty projectList}">
+                            <option disabled>No projects found</option>
+                        </c:if>
+                    </select>
+                </div>
             </div>
         </div>
         <div>
@@ -142,7 +213,7 @@
                 <div id="milestoneList">
                     <c:choose>
                         <c:when test="${empty milestones}">
-                            <div class="text-center py-5 text-muted">
+                            <div class="text-center py-5 text-muted animate-workspace" style="animation: fadeInUpTask 0.6s ease forwards;">
                                 <i class="bi bi-clipboard-x display-4 opacity-25"></i>
                                 <p class="mt-3 small">No tasks found for Week ${selectedWeek}.<br>Add one above to get started!</p>
                             </div>

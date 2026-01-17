@@ -180,4 +180,13 @@ public class AccountDAO {
         } catch (Exception e) {
         }
     }
+    public boolean updateAccountName(int accountId, String fullName) {
+        String sql = "UPDATE ACCOUNT SET full_name = ? WHERE accountId = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, fullName);
+            ps.setInt(2, accountId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); return false; }
+    }
 }

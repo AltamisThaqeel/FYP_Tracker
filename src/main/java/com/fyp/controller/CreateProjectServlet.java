@@ -20,7 +20,6 @@ public class CreateProjectServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // 1. Security Check
         HttpSession session = request.getSession();
         Account user = (Account) session.getAttribute("user");
         if (user == null) { response.sendRedirect("login.jsp"); return; }
@@ -28,25 +27,20 @@ public class CreateProjectServlet extends HttpServlet {
         ProjectDAO dao = new ProjectDAO();
         int studentId = dao.getStudentIdByAccount(user.getAccountId());
         
-        // 2. FETCH ALL PROJECTS (For the Dropdown)
-        // This allows the user to see a list of their existing projects
+        // 1. Fetch all existing projects for this student
         List<Project> myProjects = dao.getAllProjectsByStudent(studentId);
         request.setAttribute("projectList", myProjects);
 
-        // 3. DETERMINE WHICH PROJECT TO SHOW IN THE FORM
-        String action = request.getParameter("action");          // e.g., "new"
-        String selectedIdStr = request.getParameter("projectId"); // e.g., "5"
-        
+        // 2. Determine Form State
+        String action = request.getParameter("action");          
+        String selectedIdStr = request.getParameter("projectId"); 
         Project currentProject = null;
 
         if ("new".equals(action)) {
-            // Case A: User clicked "Create New Project" -> Show Empty Form
-            currentProject = null; 
-        } else if (selectedIdStr != null) {
-            // Case B: User selected a project from Dropdown -> Show Specific Project
+            currentProject = null; // Form will be empty for a new project
+        } else if (selectedIdStr != null && !selectedIdStr.isEmpty()) {
             try {
                 int selectedId = Integer.parseInt(selectedIdStr);
-                // Find the project in the list (saves a DB trip)
                 for (Project p : myProjects) {
                     if (p.getProjectId() == selectedId) {
                         currentProject = p;
@@ -55,13 +49,10 @@ public class CreateProjectServlet extends HttpServlet {
                 }
             } catch (NumberFormatException e) { }
         } else if (!myProjects.isEmpty()) {
-            // Case C: Default Load -> Show the first project in the list (if any)
-            currentProject = myProjects.get(0);
+            currentProject = myProjects.get(0); // Default to first project
         }
 
-        // Send the specific project (or null) to the JSP to fill the inputs
         request.setAttribute("currentProject", currentProject);
-        
         request.getRequestDispatcher("student/create_project.jsp").forward(request, response);
     }
 
@@ -69,15 +60,16 @@ public class CreateProjectServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // 1. Get Logged In User
         HttpSession session = request.getSession();
         Account user = (Account) session.getAttribute("user");
         if (user == null) { response.sendRedirect("login.jsp"); return; }
 
-        // 2. Retrieve Form Data
-        String projectIdStr = request.getParameter("projectId"); // HIDDEN FIELD for Updates
+        ProjectDAO dao = new ProjectDAO();
+        
+        // Retrieve Form Data
+        String projectIdStr = request.getParameter("projectId"); 
         String title = request.getParameter("title");
-        String category = request.getParameter("category");
+        String category = request.getParameter("category"); // This should match a category_name in DB
         String type = request.getParameter("type");
         String desc = request.getParameter("desc");
         String objectives = request.getParameter("objectives");
@@ -85,7 +77,6 @@ public class CreateProjectServlet extends HttpServlet {
         String startDateStr = request.getParameter("startDate");
         String endDateStr = request.getParameter("endDate");
 
-        // 3. Prepare Model
         Project p = new Project();
         p.setProjectTitle(title);
         p.setCategoryName(category);
@@ -93,50 +84,38 @@ public class CreateProjectServlet extends HttpServlet {
         p.setDescription(desc);
         p.setObjective(objectives);
         p.setContactPhone(phone);
+        p.setProgress(0); // Default progress for new projects
 
+        // Convert Dates safely
         try {
-            if (startDateStr != null && !startDateStr.isEmpty()) 
-                p.setStartDate(Date.valueOf(startDateStr));
-            if (endDateStr != null && !endDateStr.isEmpty()) 
-                p.setEndDate(Date.valueOf(endDateStr));
+            if (startDateStr != null && !startDateStr.isEmpty()) p.setStartDate(Date.valueOf(startDateStr));
+            if (endDateStr != null && !endDateStr.isEmpty()) p.setEndDate(Date.valueOf(endDateStr));
         } catch (IllegalArgumentException e) {
-            p.setStartDate(new Date(System.currentTimeMillis()));
-            p.setEndDate(new Date(System.currentTimeMillis()));
+            // Log date error if necessary
         }
 
-        // 4. Database Interaction
-        ProjectDAO dao = new ProjectDAO();
         int realStudentId = dao.getStudentIdByAccount(user.getAccountId());
         
         if (realStudentId != -1) {
             p.setStudentId(realStudentId);
 
-            // --- THE LOGIC SPLIT: UPDATE OR CREATE? ---
             if (projectIdStr != null && !projectIdStr.isEmpty()) {
-                // UPDATE EXISTING PROJECT
+                // UPDATE LOGIC
                 p.setProjectId(Integer.parseInt(projectIdStr));
-                boolean success = dao.updateProject(p); 
-                
-                // Redirect back to the specific project page
-                if (success) {
-                    response.sendRedirect("CreateProjectServlet?projectId=" + p.getProjectId());
-                } else {
-                    response.sendRedirect("CreateProjectServlet?error=UpdateFailed");
-                }
-                
+                boolean success = dao.updateProject(p);
+                response.sendRedirect("CreateProjectServlet?projectId=" + p.getProjectId() + (success ? "&msg=updated" : "&error=UpdateFailed"));
             } else {
-                // CREATE NEW PROJECT
+                // INSERT LOGIC
                 boolean success = dao.createProject(p);
-                
-                // Redirect to the main servlet to load the new list
                 if (success) {
-                    response.sendRedirect("CreateProjectServlet");
+                    // Redirect to dashboard or the list after success
+                    response.sendRedirect("StudentDashboardServlet");
                 } else {
-                    response.sendRedirect("CreateProjectServlet?error=InsertFailed");
+                    response.sendRedirect("CreateProjectServlet?action=new&error=InsertFailed");
                 }
             }
         } else {
-            response.sendRedirect("CreateProjectServlet?error=NoStudentProfile");
+            response.sendRedirect("login.jsp?error=SessionExpired");
         }
     }
 }
