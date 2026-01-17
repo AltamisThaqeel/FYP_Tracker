@@ -38,7 +38,7 @@ public class SupervisorMilestoneServlet extends HttpServlet {
 
         SupervisorDAO supDao = new SupervisorDAO();
         MilestoneDAO mileDao = new MilestoneDAO();
-        FeedbackDAO feedDao = new FeedbackDAO(); // Needs 'import com.fyp.dao.FeedbackDAO;'
+        FeedbackDAO feedDao = new FeedbackDAO();
 
         // 2. Get Dynamic Supervisor ID
         int supervisorId = supDao.getSupervisorId(user.getAccountId());
@@ -52,7 +52,7 @@ public class SupervisorMilestoneServlet extends HttpServlet {
             try {
                 selectedWeek = Integer.parseInt(weekStr);
             } catch (NumberFormatException e) {
-                selectedWeek = 1; // Fallback to week 1 if error
+                selectedWeek = 1;
             }
         }
         request.setAttribute("selectedWeek", selectedWeek);
@@ -63,31 +63,43 @@ public class SupervisorMilestoneServlet extends HttpServlet {
         if (studentId != null && !studentId.isEmpty()) {
             Project selectedProject = null;
             for (Project p : allStudents) {
-                // IMPORTANT: Compare String vs String
                 if (String.valueOf(p.getStudentId()).equals(studentId)) {
                     selectedProject = p;
                     break;
                 }
             }
 
-            // ... inside the if (selectedProject != null) block ...
             if (selectedProject != null) {
                 request.setAttribute("selectedProject", selectedProject);
 
-                // 1. FETCH OVERALL STATS (New Logic)
+                // --- NEW LOGIC: Calculate Dynamic Total Weeks ---
+                int totalWeeks = 14; // Default
+                if (selectedProject.getStartDate() != null && selectedProject.getEndDate() != null) {
+                    long diffInMillies = Math.abs(selectedProject.getEndDate().getTime() - selectedProject.getStartDate().getTime());
+                    long diffInDays = diffInMillies / (1000 * 60 * 60 * 24);
+                    // We calculate weeks (rounding up to ensure we cover the last partial week if any)
+                    totalWeeks = (int) Math.ceil(diffInDays / 7.0);
+
+                    // Safety: If for some reason calculation is 0 or negative, stick to 14 or minimum 1
+                    if (totalWeeks < 1) {
+                        totalWeeks = 14;
+                    }
+                }
+                request.setAttribute("totalWeeks", totalWeeks);
+                // ------------------------------------------------
+
+                // 1. FETCH OVERALL STATS
                 int totalOverall = mileDao.countAllMilestonesForProject(selectedProject.getProjectId());
                 int completedOverall = mileDao.countCompletedMilestonesForProject(selectedProject.getProjectId());
-
                 request.setAttribute("statTotal", totalOverall);
                 request.setAttribute("statCompleted", completedOverall);
 
-                // 2. FETCH FEEDBACK (Specific to Week)
+                // 2. FETCH FEEDBACK
                 Feedback existingFeedback = feedDao.getFeedback(selectedProject.getProjectId(), selectedWeek);
                 request.setAttribute("currentFeedback", existingFeedback);
 
-                // 3. FETCH MILESTONES (Specific to Week)
+                // 3. FETCH MILESTONES
                 int scheduleId = mileDao.getScheduleIdByProjectAndWeek(selectedProject.getProjectId(), selectedWeek);
-
                 if (scheduleId != -1) {
                     List<Milestone> milestones = mileDao.getMilestonesBySchedule(scheduleId);
                     request.setAttribute("milestoneList", milestones);
