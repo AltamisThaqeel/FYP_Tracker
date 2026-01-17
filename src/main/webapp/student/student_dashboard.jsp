@@ -89,7 +89,7 @@
                         <div class="welcome-banner">
                             <div class="row align-items-center">
                                 <div class="col-md-8">
-                                    <h2 class="fw-bold mb-3">${project.projectName}</h2>
+                                    <h2 class="fw-bold mb-3">${project.projectTitle}</h2>
 
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-white text-primary px-3 py-1 rounded-pill fw-bold">

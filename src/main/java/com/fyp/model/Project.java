@@ -6,7 +6,7 @@ public class Project {
     
     // --- SHARED DATABASE FIELDS (Matches your SQL Table) ---
     private int projectId;          // SQL: projectId INT
-    private String projectName;     // SQL: project_title
+    private String projectTitle;     // SQL: project_title
     private String description;     // SQL: project_desc
     private String objective;       // SQL: project_obj
     private String status;          // SQL: project_status
@@ -22,10 +22,7 @@ public class Project {
     private int categoryId;         // SQL: categoryId INT
     private int groupId;            // SQL: groupId INT
 
-    private String supervisorName;
     private int progress;
-    private String studentName;
-    private String studentPhone;
     private String categoryName;
 
     
@@ -38,12 +35,12 @@ public class Project {
     public int getProjectId() { return projectId; }
     public void setProjectId(int projectId) { this.projectId = projectId; }
 
-    public String getProjectName() { return projectName; }
-    public void setProjectName(String projectName) { this.projectName = projectName; }
+    public String getProjectTitle() { return projectTitle; }
+    public void setProjectTitle(String projectTitle) { this.projectTitle = projectTitle; }
     
     // Helper: Keeps older code working if it uses setTitle
-    public void setTitle(String title) { this.projectName = title; }
-    public String getTitle() { return projectName; }
+    public void setTitle(String title) { this.projectTitle = title; }
+    public String getTitle() { return projectTitle; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
@@ -83,18 +80,8 @@ public class Project {
     public int getGroupId() { return groupId; }
     public void setGroupId(int groupId) { this.groupId = groupId; }
 
-    // --- Virtual / Display Fields ---
-    public String getSupervisorName() { return supervisorName; }
-    public void setSupervisorName(String supervisorName) { this.supervisorName = supervisorName; }
-
     public int getProgress() { return progress; }
     public void setProgress(int progress) { this.progress = progress; }
-
-    public String getStudentName() { return studentName; }
-    public void setStudentName(String studentName) { this.studentName = studentName; }
-
-    public String getStudentPhone() { return studentPhone; }
-    public void setStudentPhone(String studentPhone) { this.studentPhone = studentPhone; }
 
     public String getCategoryName() { return categoryName; }
     public void setCategoryName(String categoryName) { this.categoryName = categoryName; }

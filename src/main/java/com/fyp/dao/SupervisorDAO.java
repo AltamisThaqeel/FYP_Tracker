@@ -110,11 +110,6 @@ public class SupervisorDAO {
                 // --- INT FIX CONFIRMED ---
                 p.setStudentId(rs.getInt("studentid"));
 
-                // --- NAME FIX ---
-                // Now this works because we selected 'a.full_name' in the SQL above
-                p.setStudentName(rs.getString("full_name"));
-
-                p.setStudentPhone(rs.getString("phoneNum"));
                 p.setCategoryName(rs.getString("category_name"));
 
                 list.add(p);

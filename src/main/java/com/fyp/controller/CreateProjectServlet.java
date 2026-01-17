@@ -87,7 +87,7 @@ public class CreateProjectServlet extends HttpServlet {
 
         // 3. Prepare Model
         Project p = new Project();
-        p.setProjectName(title);
+        p.setProjectTitle(title);
         p.setCategoryName(category);
         p.setProjectType(type);
         p.setDescription(desc);

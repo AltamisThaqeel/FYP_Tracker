@@ -84,7 +84,7 @@
                     
                     <c:forEach items="${projectList}" var="p">
                         <option value="${p.projectId}" ${p.projectId == projectId ? 'selected' : ''}>
-                            ${p.projectName}
+                            ${p.projectTitle}
                         </option>
                     </c:forEach>
                     

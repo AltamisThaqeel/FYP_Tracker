@@ -8,10 +8,9 @@ public class Account {
     private int accountId;
     private String email;
     private String password;
-    private String roleType; // "Student" or "Supervisor"
-    private String fullName; // <--- NEW FIELD
+    private String roleType; 
+    private String fullName; 
 
-    // Constructors, Getters, and Setters
     public Account() {}
 
     public Account(int accountId, String email, String password, String roleType) {

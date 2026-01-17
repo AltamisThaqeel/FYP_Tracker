@@ -34,7 +34,7 @@ public class ProjectDAO {
         if (rs.next()) {
             proj = new Project();
             proj.setProjectId(rs.getInt("projectId"));
-            proj.setProjectName(rs.getString("project_title")); 
+            proj.setProjectTitle(rs.getString("project_title")); 
             proj.setDescription(rs.getString("project_desc"));
             proj.setObjective(rs.getString("project_obj")); 
             proj.setStatus(rs.getString("project_status"));
@@ -45,9 +45,6 @@ public class ProjectDAO {
             
             // Set the category name from the JOIN
             proj.setCategoryName(rs.getString("category_name"));
-
-            // Safety: Set placeholder for supervisor if null in DB
-            proj.setSupervisorName("Pending Assignment"); 
             
             calculateAndSetWeeks(proj, rs.getDate("start_date"), rs.getDate("end_date"));
         }
@@ -89,7 +86,7 @@ public class ProjectDAO {
                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
             ps = con.prepareStatement(sql);
-            ps.setString(1, p.getProjectName());
+            ps.setString(1, p.getProjectTitle());
             ps.setString(2, p.getDescription());
             ps.setString(3, p.getObjective());
             ps.setDate(4, p.getStartDate());
@@ -134,7 +131,7 @@ public class ProjectDAO {
                        + "WHERE projectid=? AND studentId=?";
 
             ps = con.prepareStatement(sql);
-            ps.setString(1, p.getProjectName());
+            ps.setString(1, p.getProjectTitle());
             ps.setString(2, p.getDescription());
             ps.setString(3, p.getObjective());
             ps.setDate(4, p.getStartDate());
@@ -181,7 +178,7 @@ public class ProjectDAO {
             while (rs.next()) {
                 Project p = new Project();
                 p.setProjectId(rs.getInt("projectid"));
-                p.setProjectName(rs.getString("project_title"));
+                p.setProjectTitle(rs.getString("project_title"));
                 p.setStartDate(rs.getDate("start_date"));
                 p.setEndDate(rs.getDate("end_date"));
                 

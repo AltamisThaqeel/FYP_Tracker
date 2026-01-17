@@ -64,7 +64,7 @@
                     <c:otherwise>
                         <c:forEach items="${projectList}" var="p">
                             <option value="${p.projectId}" ${p.projectId == currentProject.projectId ? 'selected' : ''}>
-                                ${p.projectName}
+                                ${p.projectTitle}
                             </option>
                         </c:forEach>
                     </c:otherwise>
@@ -91,7 +91,7 @@
                 <div class="col-md-12">
                     <label class="form-label small fw-bold text-secondary">Project Title</label>
                     <input type="text" name="title" class="form-control" 
-                           value="${currentProject.projectName}" placeholder="Enter title..." required>
+                           value="${currentProject.projectTitle}" placeholder="Enter title..." required>
                 </div>
 
                 <div class="col-md-6">
