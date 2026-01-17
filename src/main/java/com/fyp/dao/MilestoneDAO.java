@@ -257,4 +257,31 @@ public class MilestoneDAO {
         }
         return scheduleId;
     }
+    
+    public List<Milestone> getMilestonesByProject(int projectId) {
+        List<Milestone> list = new ArrayList<>();
+        // This query joins with project_schedule to get the week_num for each task
+        String sql = "SELECT m.*, ps.week_num FROM milestone m " +
+                     "JOIN project_schedule ps ON m.project_schedule_id = ps.project_schedule_id " +
+                     "WHERE ps.projectId = ? " +
+                     "ORDER BY ps.week_num ASC";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, projectId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Milestone m = new Milestone();
+                m.setMilestoneId(rs.getInt("milestoneId"));
+                m.setDescription(rs.getString("milestone_desc"));
+                m.setStatus(rs.getString("status"));
+                m.setProjectScheduleId(rs.getInt("project_schedule_id"));
+                // IMPORTANT: This requires a setWeekNum method in your Milestone model
+                m.setWeekNum(rs.getInt("week_num")); 
+                list.add(m);
+            }
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        }
+        return list;
+    }
 }

@@ -91,19 +91,19 @@ public class StudentDashboardServlet extends HttpServlet {
                     totalPerWeek.add(weekMilestones.size());
                 }
 
-                String labelsJson = IntStream.rangeClosed(1, totalWeeks)
-                             .mapToObj(String::valueOf)
-                             .collect(java.util.stream.Collectors.joining(","));
-                String completedJson = completedPerWeek.stream()
-                                                     .map(String::valueOf)
-                                                     .collect(java.util.stream.Collectors.joining(","));
-                String totalJson = totalPerWeek.stream()
-                                               .map(String::valueOf)
-                                               .collect(java.util.stream.Collectors.joining(","));
+                String labelsJson = IntStream.rangeClosed(1, totalWeeks).mapToObj(String::valueOf).collect(java.util.stream.Collectors.joining(","));
+                String completedJson = completedPerWeek.stream().map(String::valueOf).collect(java.util.stream.Collectors.joining(","));
+                String totalJson = totalPerWeek.stream().map(String::valueOf).collect(java.util.stream.Collectors.joining(","));
                 
-                request.setAttribute("chartLabels", IntStream.rangeClosed(1, totalWeeks).toArray());
-                request.setAttribute("chartCompletedData", completedPerWeek);
-                request.setAttribute("chartTotalData", totalPerWeek);
+                List<Milestone> allMilestones = mDao.getMilestonesByProject(projectId);
+                request.setAttribute("allProjectMilestones", allMilestones);
+                
+                List<Integer> weeksList = IntStream.rangeClosed(1, totalWeeks).boxed().collect(java.util.stream.Collectors.toList());
+                request.setAttribute("chartLabelsArray", weeksList);
+                
+                request.setAttribute("chartLabels", labelsJson);
+                request.setAttribute("chartCompletedData", completedJson);
+                request.setAttribute("chartTotalData", totalJson);
                 
                 request.setAttribute("project", myProject);
                 request.setAttribute("totalCount", totalCount);

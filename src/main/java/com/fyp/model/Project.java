@@ -16,21 +16,19 @@ public class Project {
     private Date startDate;         // SQL: start_date
     private Date endDate;           // SQL: end_date
 
-    // --- FOREIGN KEYS (Integers to match DB Columns) ---
     private int studentId;          // SQL: studentId INT
     private int supervisorId;       // SQL: supervisorId INT
     
-    // [ADDED] These were missing but exist in your Database Table!
     private int categoryId;         // SQL: categoryId INT
     private int groupId;            // SQL: groupId INT
 
-    // --- VIRTUAL FIELDS (For Display Only - Not in PROJECT table) ---
     private String supervisorName;
     private int progress;
     private String studentName;
     private String studentPhone;
     private String categoryName;
 
+    
     public Project() {}
 
     // ==========================================

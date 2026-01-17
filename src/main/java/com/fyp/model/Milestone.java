@@ -9,14 +9,16 @@ public class Milestone {
     private String description;
     private String status; // 'Completed' or 'Pending'
     private int projectScheduleId; // Links to a specific Week
+    private int weekNum;
 
     public Milestone() {}
 
-    public Milestone(int milestoneId, String description, String status, int projectScheduleId) {
+    public Milestone(int milestoneId, String description, String status, int projectScheduleId, int weekNum) {
         this.milestoneId = milestoneId;
         this.description = description;
         this.status = status;
         this.projectScheduleId = projectScheduleId;
+        this.weekNum = weekNum;
     }
 
     // Getters and Setters
@@ -31,4 +33,7 @@ public class Milestone {
 
     public int getProjectScheduleId() { return projectScheduleId; }
     public void setProjectScheduleId(int projectScheduleId) { this.projectScheduleId = projectScheduleId; }
+    
+    public int getWeekNum() { return weekNum; }
+    public void setWeekNum(int weekNum) { this.weekNum = weekNum; }
 }
