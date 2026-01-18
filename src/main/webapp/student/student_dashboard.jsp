@@ -17,6 +17,45 @@
         .nav-link.active { background-color: #2563EB; color: white; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
         .main-content { margin-left: 250px; padding: 30px; }
         
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .animate-on-load {
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        .fade-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .slide-right {
+            animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        
         /* --- DASHBOARD CARDS --- */
         .welcome-banner {
             background: linear-gradient(135deg, #2563EB, #1D4ED8);
@@ -43,6 +82,10 @@
         .empty-state {
             text-align: center; padding: 60px; background: white; 
             border-radius: 20px; border: 2px dashed #e9ecef; color: #6c757d;
+        }
+        .progress-fill {
+            width: 0; /* Start at 0 for animation */
+            transition: width 1.5s cubic-bezier(0.65, 0, 0.35, 1);
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -96,7 +139,7 @@
                                 </a>
                             </c:if>
 
-                            <div class="welcome-banner flex-grow-1 mb-0">
+                            <div class="welcome-banner flex-grow-1 mb-0 animate-item slide-right">
                                 <div class="row align-items-center">
                                     <div class="col-md-8">
                                         <h2 class="fw-bold mb-3">${project.projectTitle}</h2>
@@ -132,7 +175,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-3 animate-item fade-up delay-1">
                         <div class="stat-card d-flex align-items-center gap-3">
                             <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
                                 <i class="bi bi-check-circle-fill fs-4"></i>
@@ -144,7 +187,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-3 animate-item fade-up delay-2">
                         <div class="stat-card d-flex align-items-center gap-3">
                             <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary">
                                 <i class="bi bi-calendar-event fs-4"></i>
@@ -156,7 +199,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-3 animate-item fade-up delay-3">
                         <div class="stat-card d-flex align-items-center gap-3">
                             <div class="bg-warning bg-opacity-10 p-3 rounded-circle text-warning">
                                 <i class="bi bi-hourglass-split fs-4"></i>
@@ -168,7 +211,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-3 animate-item fade-up delay-4">
                         <div class="stat-card d-flex align-items-center gap-3">
                             <div class="bg-info bg-opacity-10 p-3 rounded-circle text-info">
                                 <i class="bi bi-chat-dots fs-4"></i>
@@ -180,7 +223,7 @@
                         </div>
                     </div>
 
-                    <div class="row g-4 mt-2">
+                    <div class="row g-4 mt-2 animate-item fade-up delay-5">
                         <div class="col-md-8">
                             <div class="stat-card">
                                 <h6 class="fw-bold text-muted mb-3">PROJECT TIMELINE PROGRESS</h6>
@@ -190,7 +233,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-4 animate-item fade-up delay-5">
                             <div class="stat-card" style="max-height: 400px; overflow-y: auto;">
                                 <h6 class="fw-bold text-muted mb-3">WEEKLY TASKS</h6>
 
@@ -248,6 +291,13 @@
             const labels = [${not empty chartLabels ? chartLabels : ''}];
             const completedData = [${not empty chartCompletedData ? chartCompletedData : ''}];
             const totalData = [${not empty chartTotalData ? chartTotalData : ''}];
+            const progressBar = document.getElementById('dashboardProgress');
+            
+            if (progressBar) {
+                setTimeout(() => {
+                    progressBar.style.width = progressBar.getAttribute('data-target');
+                }, 500);
+            }
 
             milestoneChartInstance = new Chart(ctx, {
                 type: 'line',

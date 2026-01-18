@@ -101,10 +101,11 @@ public class MilestoneDAO {
             int scheduleId = getOrCreateSchedule(con, projectId, weekNum);
 
             if (scheduleId != -1) {
-                String sql = "INSERT INTO milestone (milestone_desc, status, project_schedule_id) VALUES (?, 'Not Started', ?)";
+                String sql = "INSERT INTO milestone (milestone_desc, status, project_schedule_id, week_num) VALUES (?, 'Not Started', ?, ?)";
                 try (PreparedStatement ps = con.prepareStatement(sql)) {
                     ps.setString(1, description);
                     ps.setInt(2, scheduleId);
+                    ps.setInt(3, weekNum);
                     return ps.executeUpdate() > 0;
                 }
             }

@@ -23,13 +23,46 @@
         .nav-link.active { background-color: #2563EB; color: white; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
         .main-content { margin-left: 250px; padding: 30px; }
         .form-control, .form-select { background-color: #f8f9fa; border: 1px solid #dee2e6; height: 45px; }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
+        .animate-project-item {
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        .delay-header { animation-delay: 0.1s; }
+        .delay-form   { animation-delay: 0.2s; }
+        .delay-row-1  { animation-delay: 0.3s; }
+        .delay-row-2  { animation-delay: 0.4s; }
+        .delay-row-3  { animation-delay: 0.5s; }
+        .delay-row-4  { animation-delay: 0.6s; }
+        
         /* --- NEW CSS FOR AUTO-EXPANDING TEXTAREAS --- */
         textarea.auto-expand {
             resize: none;       /* Disable manual resize handle */
             overflow-y: hidden; /* Hide scrollbar */
             min-height: 150px;  /* Minimum starting height */
             transition: height 0.2s ease;
+        }
+        .form-control, .form-select {
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .form-control:focus, .form-select:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.1);
+            border-color: #2563EB;
         }
     </style>
 </head>
@@ -51,7 +84,7 @@
 
 <div class="main-content">
     
-    <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-white rounded shadow-sm">
+    <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-white rounded shadow-sm animate-project-item delay-header">
         <div class="d-flex align-items-center gap-3">
             <h5 class="mb-0 fw-bold text-dark">Selected Project:</h5>
             <select class="form-select w-auto border-0 bg-light fw-bold text-primary" 
@@ -76,7 +109,7 @@
         </a>
     </div>
 
-    <div class="card border-0 shadow-sm p-4">
+    <div class="card border-0 shadow-sm p-4 animate-project-item delay-form">
         <h5 class="text-muted mb-4 border-bottom pb-3">
             ${currentProject != null ? 'Edit Existing Project' : 'Submit New Project Proposal'}
         </h5>
@@ -88,13 +121,13 @@
             </c:if>
 
             <div class="row g-3">
-                <div class="col-md-12">
+                <div class="col-md-12 animate-project-item delay-row-1">
                     <label class="form-label small fw-bold text-secondary">Project Title</label>
                     <input type="text" name="title" class="form-control" 
                            value="${currentProject.projectTitle}" placeholder="Enter title..." required>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-6 animate-project-item delay-row-2">
                     <label class="form-label small fw-bold text-secondary">Category / Research Area</label>
                     <select name="category" class="form-select" required>
                         <option value="" disabled ${currentProject == null ? 'selected' : ''}>Select a category</option>
@@ -106,7 +139,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-6 animate-project-item delay-row-2">
                     <label class="form-label small fw-bold text-secondary">Project Type</label>
                     <select name="type" class="form-select" required>
                         <option value="Individual" ${currentProject.projectType == 'Individual' ? 'selected' : ''}>Individual Project</option>
@@ -114,36 +147,36 @@
                     </select>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-4 animate-project-item delay-row-3">
                     <label class="form-label small fw-bold text-secondary">Start Date</label>
                     <input type="date" name="startDate" class="form-control" value="${currentProject.startDate}" required>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-4 animate-project-item delay-row-3">
                     <label class="form-label small fw-bold text-secondary">End Date</label>
                     <input type="date" name="endDate" class="form-control" value="${currentProject.endDate}" required>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-4 animate-project-item delay-row-3">
                     <label class="form-label small fw-bold text-secondary">Contact Phone</label>
                     <input type="text" name="phone" class="form-control" value="${currentProject.contactPhone}" placeholder="+6012..." required>
                 </div>
 
-                <div class="col-12">
+                <div class="col-12 animate-project-item delay-row-4">
                     <label class="form-label small fw-bold text-secondary">Project Description</label>
                     <textarea name="desc" class="form-control auto-expand" rows="6" 
                               placeholder="Describe the background..." 
                               oninput="autoResize(this)" required>${currentProject.description}</textarea>
                 </div>
 
-                <div class="col-12">
+                <div class="col-12 animate-project-item delay-row-4">
                     <label class="form-label small fw-bold text-secondary">Project Objectives</label>
                     <textarea name="objectives" class="form-control auto-expand" rows="6" 
                               placeholder="List your key goals here..." 
                               oninput="autoResize(this)" required>${currentProject.objective}</textarea>
                 </div>
 
-                <div class="col-12 text-end mt-4">
+                <div class="col-12 text-end mt-4 animate-project-item delay-row-4">
                     <c:choose>
                         <c:when test="${currentProject != null}">
                             <a href="${pageContext.request.contextPath}/CreateProjectServlet?action=new" class="btn btn-light text-muted me-2">Cancel</a>

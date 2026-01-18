@@ -43,6 +43,43 @@
             .info-label {font-size: 0.75rem;text-transform: uppercase;letter-spacing: 1px;font-weight: 700;color: #64748b;margin-bottom: 5px;display: block;}
             .info-value {font-size: 1rem;color: #1e293b;font-weight: 600;}
             
+            @keyframes profilePop {
+                0% { transform: scale(0.8); opacity: 0; }
+                100% { transform: scale(1); opacity: 1; }
+            }
+
+            @keyframes listSlideUp {
+                from { opacity: 0; transform: translateY(15px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .animate-pop {
+                animation: profilePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            }
+
+            .animate-details {
+                opacity: 0;
+                animation: listSlideUp 0.5s ease-out forwards;
+            }
+
+            /* Staggered delay for each profile row */
+            .profile-row:nth-child(1) { animation-delay: 0.1s; }
+            .profile-row:nth-child(2) { animation-delay: 0.2s; }
+            .profile-row:nth-child(3) { animation-delay: 0.3s; }
+            .profile-row:nth-child(4) { animation-delay: 0.4s; }
+
+            /* Fancy Hover for Inputs */
+            .form-control-plaintext {
+                padding: 8px 12px;
+                border-radius: 8px;
+                transition: all 0.3s ease;
+            }
+
+            .form-control-plaintext:hover {
+                background-color: #f8f9fa;
+                padding-left: 15px;
+            }
+            
             /* Toggle visibility for Edit mode */
             .edit-mode { display: none; }
         </style>
@@ -80,23 +117,23 @@
             <nav class="nav flex-column">
                 <c:choose>
                     <c:when test="${role == 'Student'}">
-                        <a href="StudentDashboardServlet" class="nav-link"><i class="bi bi-grid-fill me-2"></i> Dashboard</a>
-                        <a href="CreateProjectServlet" class="nav-link"><i class="bi bi-folder-fill me-2"></i> My Project</a>
-                        <a href="MilestoneServlet" class="nav-link"><i class="bi bi-list-check me-2"></i> Milestones</a>
-                        <a href="StudentFeedbackServlet" class="nav-link"><i class="bi bi-chat-left-text-fill me-2"></i> Feedback</a>
+                        <a href="${pageContext.request.contextPath}/StudentDashboardServlet" class="nav-link"><i class="bi bi-grid-fill me-2"></i> Dashboard</a>
+                        <a href="${pageContext.request.contextPath}/CreateProjectServlet" class="nav-link"><i class="bi bi-folder-fill me-2"></i> My Project</a>
+                        <a href="${pageContext.request.contextPath}/MilestoneServlet" class="nav-link"><i class="bi bi-list-check me-2"></i> Milestones</a>
+                        <a href="${pageContext.request.contextPath}/StudentFeedbackServlet" class="nav-link"><i class="bi bi-chat-left-text-fill me-2"></i> Supervisor Feedback</a>
                     </c:when>
                     <c:when test="${role == 'Supervisor'}">
-                        <a href="SupervisorDashboardServlet" class="nav-link"><i class="bi bi-grid-fill me-2"></i> Dashboard</a>
-                        <a href="StudentListServlet" class="nav-link"><i class="bi bi-people-fill me-2"></i> Student Projects</a>
-                        <a href="SupervisorMilestoneServlet" class="nav-link"><i class="bi bi-list-check me-2"></i> Track Milestone</a>
+                        <a href="${pageContext.request.contextPath}/SupervisorDashboardServlet" class="nav-link"><i class="bi bi-grid-fill me-2"></i> Dashboard</a>
+                        <a href="${pageContext.request.contextPath}/StudentListServlet" class="nav-link"><i class="bi bi-people-fill me-2"></i> Student Projects</a>
+                        <a href="${pageContext.request.contextPath}/SupervisorMilestoneServlet" class="nav-link"><i class="bi bi-list-check me-2"></i> Track Milestone</a>
                     </c:when>
                     <c:when test="${role == 'Admin'}">
-                        <a href="AdminDashboardServlet" class="nav-link"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
-                        <a href="AdminAssignServlet" class="nav-link"><i class="bi bi-person-lines-fill me-2"></i> Assign</a>
+                        <a href="${pageContext.request.contextPath}/AdminDashboardServlet" class="nav-link"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+                        <a href="${pageContext.request.contextPath}/AdminAssignServlet" class="nav-link"><i class="bi bi-person-lines-fill me-2"></i> Assign</a>
                     </c:when>
                 </c:choose>
-                <a href="ProfileServlet" class="nav-link active"><i class="bi bi-person-fill me-2"></i> User Profile</a>
-                <a href="logout.jsp" class="nav-link mt-5 text-danger border-top pt-3"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
+                <a href="${pageContext.request.contextPath}/ProfileServlet" class="nav-link active"><i class="bi bi-person-fill me-2"></i> User Profile</a>
+                <a href="${pageContext.request.contextPath}/logout.jsp" class="nav-link mt-5 text-danger border-top pt-3"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
             </nav>
         </div>
 
