@@ -264,6 +264,7 @@
                                                         <c:when test="${profileDetails.departmentId == 3}">3 (Information Systems)</c:when>
                                                         <c:when test="${profileDetails.departmentId == 4}">4 (Data Engineering)</c:when>
                                                         <c:when test="${profileDetails.departmentId == 5}">5 (Cybersecurity)</c:when>
+                                                        <c:when test="${profileDetails.departmentId == 6}">6 (System Administrator)</c:when>
                                                         <c:otherwise>${profileDetails.departmentId} (Unknown)</c:otherwise>
                                                     </c:choose>
                                                 </div>
@@ -274,6 +275,7 @@
                                                     <option value="3" ${profileDetails.departmentId == 3 ? 'selected' : ''}>3 (Information Systems)</option>
                                                     <option value="4" ${profileDetails.departmentId == 4 ? 'selected' : ''}>4 (Data Engineering)</option>
                                                     <option value="5" ${profileDetails.departmentId == 5 ? 'selected' : ''}>5 (Cybersecurity)</option>
+                                                    <option value="6" ${profileDetails.departmentId == 6 ? 'selected' : ''}>6 (System Administrator)</option>
                                                 </select>
                                             </div>
                                         </div>
