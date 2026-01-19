@@ -71,7 +71,7 @@
                 <a href="${pageContext.request.contextPath}/SupervisorDashboardServlet" class="nav-link active bg-primary text-white rounded"><i class="bi bi-grid-fill me-2"></i> Dashboard</a>
                 <a href="${pageContext.request.contextPath}/StudentListServlet" class="nav-link text-secondary"><i class="bi bi-people-fill me-2"></i> Student Project</a>
                 <a href="${pageContext.request.contextPath}/SupervisorMilestoneServlet" class="nav-link text-secondary"><i class="bi bi-list-check me-2"></i> Track Milestone</a>
-                <a href="${pageContext.request.contextPath}/profile.jsp" class="nav-link text-secondary"><i class="bi bi-person-fill me-2"></i> Profile</a>
+                <a href="${pageContext.request.contextPath}/ProfileServlet" class="nav-link text-secondary"><i class="bi bi-person-fill me-2"></i> Profile</a>
                 <a href="${pageContext.request.contextPath}/logout.jsp" class="nav-link text-danger border-top pt-3 mt-4"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
             </nav>
         </div>

@@ -12,7 +12,7 @@
     <style>
         body, html { height: 100%; margin: 0; font-family: 'Segoe UI', sans-serif; }
         .left-panel { background-color: #2563EB; color: white; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 50px; }
-        .illustration-box { background-color: #60a5fa; border-radius: 20px; width: 80%; max-width: 350px; height: 300px; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .illustration-box { background-color: white; border-radius: 20px; width: 80%; max-width: 350px; height: 300px; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .feature-icons i { font-size: 1.5rem; margin: 0 15px; opacity: 0.8; }
         .feature-text { font-size: 0.8rem; margin-top: 5px; opacity: 0.8; }
         .right-panel { height: 100vh; display: flex; align-items: center; justify-content: center; background-color: #ffffff; }
@@ -42,8 +42,10 @@
     <div class="row">
         
         <div class="col-md-6 d-none d-md-flex left-panel">
-            <div class="illustration-box">
-                <i class="bi bi-laptop text-white" style="font-size: 6rem;"></i>
+            <div class="illustration-box" style="padding: 0; background-color: white;">
+                <img src="${pageContext.request.contextPath}/assets/img/img.png" 
+                     alt="Login Illustration" 
+                     style="width: 100%; height: 100%; object-fit: cover;">
             </div>
             
             <h2 class="fw-bold display-6">Academic Dashboard</h2>

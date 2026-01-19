@@ -147,7 +147,7 @@
                 </div>
             </c:if>
 
-            <form action="ProfileServlet" method="POST">
+            <form action="ProfileServlet" method="POST"><input type="hidden" name="accountId" value="${user.accountId}">
                 <div class="row">
                     <div class="col-md-4">
                         <div class="card profile-card p-4">
@@ -198,6 +198,7 @@
                                 <%-- Role Specific Data --%>
                                 <c:choose>
                                     <c:when test="${role == 'Student'}">
+                                        <input type="hidden" name="studentId" value="${profileDetails.studentId}">
                                         <div class="col-md-6">
                                             <div class="attribute-group">
                                                 <label class="info-label">Phone Number</label>
@@ -237,6 +238,7 @@
 
                                     <c:otherwise>
                                         <%-- Supervisor / Admin --%>
+                                        <input type="hidden" name="supervisorId" value="${profileDetails.supervisorId}">
                                         <div class="col-md-6">
                                             <div class="attribute-group">
                                                 <label class="info-label">Contact Number</label>
@@ -251,10 +253,28 @@
                                                 <input type="text" name="position" class="form-control edit-mode" value="${profileDetails.position}">
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <div class="attribute-group" style="border-left-color: #cbd5e1;">
-                                                <label class="info-label">Department Code</label>
-                                                <div class="info-value">${profileDetails.departmentId}</div>
+                                        <div class="col-md-6 profile-row">
+                                            <div class="attribute-group">
+                                                <label class="info-label">Department</label>
+
+                                                <div class="view-mode info-value">
+                                                    <c:choose>
+                                                        <c:when test="${profileDetails.departmentId == 1}">1 (Computer Science)</c:when>
+                                                        <c:when test="${profileDetails.departmentId == 2}">2 (Software Engineering)</c:when>
+                                                        <c:when test="${profileDetails.departmentId == 3}">3 (Information Systems)</c:when>
+                                                        <c:when test="${profileDetails.departmentId == 4}">4 (Data Engineering)</c:when>
+                                                        <c:when test="${profileDetails.departmentId == 5}">5 (Cybersecurity)</c:when>
+                                                        <c:otherwise>${profileDetails.departmentId} (Unknown)</c:otherwise>
+                                                    </c:choose>
+                                                </div>
+
+                                                <select name="departmentId" class="form-select edit-mode">
+                                                    <option value="1" ${profileDetails.departmentId == 1 ? 'selected' : ''}>1 (Computer Science)</option>
+                                                    <option value="2" ${profileDetails.departmentId == 2 ? 'selected' : ''}>2 (Software Engineering)</option>
+                                                    <option value="3" ${profileDetails.departmentId == 3 ? 'selected' : ''}>3 (Information Systems)</option>
+                                                    <option value="4" ${profileDetails.departmentId == 4 ? 'selected' : ''}>4 (Data Engineering)</option>
+                                                    <option value="5" ${profileDetails.departmentId == 5 ? 'selected' : ''}>5 (Cybersecurity)</option>
+                                                </select>
                                             </div>
                                         </div>
                                     </c:otherwise>

@@ -187,13 +187,14 @@ public class SupervisorDAO {
         }
         return list;
     }
-    public boolean updateSupervisorProfile(int supervisorId, String phone, String position) {
-        String sql = "UPDATE SUPERVISOR SET phoneNum = ?, position = ? WHERE supervisorId = ?";
+    public boolean updateSupervisorProfile(int supervisorId, String phone, String position, int departmentId) {
+        String sql = "UPDATE SUPERVISOR SET phoneNum = ?, position = ?, departmentId = ? WHERE supervisorId = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, phone);
             ps.setString(2, position);
-            ps.setInt(3, supervisorId);
+            ps.setInt(3, departmentId);
+            ps.setInt(4, supervisorId);
             return ps.executeUpdate() > 0;
         } catch (Exception e) { e.printStackTrace(); return false; }
     }

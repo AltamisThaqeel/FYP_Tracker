@@ -64,7 +64,50 @@
             box-shadow: 0 5px 15px rgba(37, 99, 235, 0.1);
             border-color: #2563EB;
         }
+        
     </style>
+    <script>
+        function autoResize(textarea) {
+            textarea.style.height = 'auto'; 
+            textarea.style.height = textarea.scrollHeight + 'px'; 
+        }
+
+        // --- NEW FUNCTION: CALCULATE WEEKS ---
+        function calculateWeeks() {
+            const startVal = document.getElementById('startDate').value;
+            const endVal = document.getElementById('endDate').value;
+            const durationBox = document.getElementById('durationWeeks');
+
+            if (startVal && endVal) {
+                const start = new Date(startVal);
+                const end = new Date(endVal);
+
+                // Calculate difference in time
+                const diffTime = end - start;
+
+                // Convert to days (1000ms * 60s * 60m * 24h)
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays > 0) {
+                    // Convert days to weeks (rounding up)
+                    const weeks = Math.ceil(diffDays / 7);
+                    durationBox.value = weeks + " Weeks";
+                } else {
+                    durationBox.value = "0 Weeks";
+                }
+            }
+        }
+
+        // Run on page load (for Edit Mode)
+        window.addEventListener('load', function() {
+            // Resize textareas
+            const textareas = document.querySelectorAll('.auto-expand');
+            textareas.forEach(textarea => { autoResize(textarea); });
+
+            // Calculate weeks if dates exist
+            calculateWeeks();
+        });
+    </script>
 </head>
 <body>
 
@@ -77,7 +120,7 @@
         <a href="${pageContext.request.contextPath}/CreateProjectServlet" class="nav-link active"><i class="bi bi-folder-fill me-2"></i> My Project</a>
         <a href="${pageContext.request.contextPath}/MilestoneServlet" class="nav-link"><i class="bi bi-list-check me-2"></i> Milestones</a>
         <a href="${pageContext.request.contextPath}/StudentFeedbackServlet" class="nav-link"><i class="bi bi-chat-left-text-fill me-2"></i> Supervisor Feedback</a>
-        <a href="${pageContext.request.contextPath}/profile.jsp" class="nav-link"><i class="bi bi-person-fill me-2"></i> User Profile</a>
+        <a href="${pageContext.request.contextPath}/ProfileServlet" class="nav-link"><i class="bi bi-person-fill me-2"></i> User Profile</a>
         <a href="${pageContext.request.contextPath}/logout.jsp" class="nav-link mt-5 text-danger border-top pt-3"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
     </nav>
 </div>
@@ -147,19 +190,28 @@
                     </select>
                 </div>
 
-                <div class="col-md-4 animate-project-item delay-row-3">
+                <div class="col-md-3 animate-project-item delay-row-3">
                     <label class="form-label small fw-bold text-secondary">Start Date</label>
-                    <input type="date" name="startDate" class="form-control" value="${currentProject.startDate}" required>
+                    <input type="date" name="startDate" id="startDate" class="form-control" 
+                           value="${currentProject.startDate}" required onchange="calculateWeeks()">
                 </div>
 
-                <div class="col-md-4 animate-project-item delay-row-3">
+                <div class="col-md-3 animate-project-item delay-row-3">
                     <label class="form-label small fw-bold text-secondary">End Date</label>
-                    <input type="date" name="endDate" class="form-control" value="${currentProject.endDate}" required>
+                    <input type="date" name="endDate" id="endDate" class="form-control" 
+                           value="${currentProject.endDate}" required onchange="calculateWeeks()">
+                </div>
+
+                <div class="col-md-2 animate-project-item delay-row-3">
+                    <label class="form-label small fw-bold text-secondary">Duration</label>
+                    <input type="text" id="durationWeeks" class="form-control bg-light text-primary fw-bold" 
+                           placeholder="0 Weeks" readonly>
                 </div>
 
                 <div class="col-md-4 animate-project-item delay-row-3">
                     <label class="form-label small fw-bold text-secondary">Contact Phone</label>
-                    <input type="text" name="phone" class="form-control" value="${currentProject.contactPhone}" placeholder="+6012..." required>
+                    <input type="text" name="phone" class="form-control" 
+                           value="${currentProject.contactPhone}" placeholder="+6012..." required>
                 </div>
 
                 <div class="col-12 animate-project-item delay-row-4">

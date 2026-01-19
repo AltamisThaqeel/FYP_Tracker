@@ -121,7 +121,7 @@
                 <a href="AdminDashboardServlet" class="nav-link active"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
                 <a href="AdminAssignServlet" class="nav-link"><i class="bi bi-person-lines-fill me-2"></i> Assign Student</a>
                 <a href="AdminUsersServlet" class="nav-link"><i class="bi bi-people-fill me-2"></i> Manage Account</a>
-                <a href="${pageContext.request.contextPath}/profile.jsp" class="nav-link "><i class="bi bi-person-fill me-2"></i> Profile</a>
+                <a href="${pageContext.request.contextPath}/ProfileServlet" class="nav-link "><i class="bi bi-person-fill me-2"></i> Profile</a>
                 <a href="${pageContext.request.contextPath}/logout.jsp" class="nav-link text-danger mt-5"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
             </nav>
         </div>

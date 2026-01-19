@@ -2,9 +2,11 @@ package com.fyp.controller;
 
 import com.fyp.dao.AccountDAO;
 import com.fyp.dao.StudentDAO;
+import com.fyp.dao.DepartmentDAO;
 import com.fyp.dao.SupervisorDAO;
 import com.fyp.model.Account;
 import com.fyp.model.Student;
+import com.fyp.model.Department;
 import com.fyp.model.Supervisor;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -87,10 +89,11 @@ public class ProfileServlet extends HttpServlet {
         } else if ("Supervisor".equalsIgnoreCase(role) || "Admin".equalsIgnoreCase(role)) {
             String phone = request.getParameter("phone");
             String position = request.getParameter("position");
+            int departmentId = Integer.parseInt(request.getParameter("departmentId"));
             int supervisorId = Integer.parseInt(request.getParameter("supervisorId"));
             
             SupervisorDAO supDao = new SupervisorDAO();
-            detailsUpdated = supDao.updateSupervisorProfile(supervisorId, phone, position);
+            detailsUpdated = supDao.updateSupervisorProfile(supervisorId, phone, position, departmentId);
         }
 
         // 3. Redirect with Status

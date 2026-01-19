@@ -66,6 +66,7 @@ public class StudentDAO {
                     s.setStudentId(rs.getInt("studentId"));
                     s.setPhoneNum(rs.getString("phoneNum"));
                     s.setAddress(rs.getString("address"));
+                    s.setEnrollmentYear(rs.getInt("enrollment_year"));
                     s.setSpecialization(rs.getString("specialization"));
                     s.setEducationType(rs.getString("education_type"));
                     s.setAccountId(rs.getInt("accountId"));

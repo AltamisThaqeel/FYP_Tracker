@@ -180,12 +180,7 @@
                     <label class="form-label">Email Address</label>
                     <input type="email" name="email" class="form-control custom-input" placeholder="Enter your email" required>
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Phone Number</label>
-                    <input type="tel" name="phone" class="form-control custom-input" placeholder="Enter your phone number" required>
-                </div>
-
+                
                 <div class="mb-4">
                     <label class="form-label">Password</label>
                     <input type="password" name="password" class="form-control custom-input" placeholder="Create a password" required>
