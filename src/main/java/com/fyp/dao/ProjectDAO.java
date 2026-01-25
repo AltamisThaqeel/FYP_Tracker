@@ -182,8 +182,11 @@ public class ProjectDAO {
                 Project p = new Project();
                 p.setProjectId(rs.getInt("projectId"));
                 p.setProjectTitle(rs.getString("project_title"));
+                p.setDescription(rs.getString("project_desc"));
+                p.setObjective(rs.getString("project_obj"));
                 p.setStartDate(rs.getDate("start_date"));
                 p.setEndDate(rs.getDate("end_date"));
+                p.setContactPhone(rs.getString("contact_phone"));
                 p.setStatus(rs.getString("project_status"));
                 p.setCategoryName(rs.getString("category_name"));
                 

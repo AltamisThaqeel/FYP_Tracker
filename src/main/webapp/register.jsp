@@ -122,8 +122,10 @@
     <div class="row g-0 main-container">
         
         <div class="col-lg-6 left-panel">
-            <div class="illustration-container">
-                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" class="illustration-img" alt="Illustration" width="250">
+            <div class="illustration-box" style="padding: 0; background-color: white;">
+                <img src="${pageContext.request.contextPath}/assets/img/img.png" 
+                     alt="Login Illustration" 
+                     style="width: 100%; height: 100%; object-fit: cover;">
             </div>
             
             <h2 class="left-title">Academic Dashboard</h2>

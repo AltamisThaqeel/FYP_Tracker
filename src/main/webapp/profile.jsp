@@ -129,7 +129,8 @@
                     </c:when>
                     <c:when test="${role == 'Admin'}">
                         <a href="${pageContext.request.contextPath}/AdminDashboardServlet" class="nav-link"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
-                        <a href="${pageContext.request.contextPath}/AdminAssignServlet" class="nav-link"><i class="bi bi-person-lines-fill me-2"></i> Assign</a>
+                        <a href="${pageContext.request.contextPath}/AdminAssignServlet" class="nav-link"><i class="bi bi-person-lines-fill me-2"></i> Assign Student</a>
+                        <a href="${pageContext.request.contextPath}/AdminUsersServlet" class="nav-link"><i class="bi bi-person-lines-fill me-2"></i> Manage Account</a>
                     </c:when>
                 </c:choose>
                 <a href="${pageContext.request.contextPath}/ProfileServlet" class="nav-link active"><i class="bi bi-person-fill me-2"></i> User Profile</a>
