@@ -34,6 +34,16 @@ public class AdminDAO {
         int count = 0;
         try {
             Connection con = DBConnection.getConnection();
+            
+            // --- FIX START: Auto-update status based on progress ---
+            // This ensures that if progress is 100, the status becomes 'Completed' automatically
+            String updateSql = "UPDATE PROJECT SET project_status = 'Completed' WHERE progress = 100";
+            PreparedStatement psUpdate = con.prepareStatement(updateSql);
+            psUpdate.executeUpdate();
+            psUpdate.close(); 
+            // --- FIX END ---
+
+            // Now count the projects that are effectively completed
             String sql = "SELECT COUNT(*) FROM PROJECT WHERE project_status = 'Completed'";
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();

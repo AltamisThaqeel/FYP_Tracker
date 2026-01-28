@@ -193,14 +193,63 @@ public class MilestoneDAO {
     //  4. UTILITIES (Used by Both)
     // ==========================================================
 
-    public void updateStatus(int id, String status) {
-        String sql = "UPDATE milestone SET status = ? WHERE milestoneId = ?";
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+    public void updateStatus(int milestoneId, String status) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            con = DBConnection.getConnection();
+
+            // 1. Update the Milestone Status first
+            String sqlUpdate = "UPDATE milestone SET status = ? WHERE milestoneId = ?";
+            ps = con.prepareStatement(sqlUpdate);
             ps.setString(1, status);
-            ps.setInt(2, id);
+            ps.setInt(2, milestoneId);
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+            ps.close();
+
+            // 2. Find the Project ID for this milestone
+            // (We need to join tables to find which project this milestone belongs to)
+            int projectId = -1;
+            String sqlFindProject = "SELECT ps.projectId FROM project_schedule ps " +
+                                    "JOIN milestone m ON ps.project_schedule_id = m.project_schedule_id " +
+                                    "WHERE m.milestoneId = ?";
+            ps = con.prepareStatement(sqlFindProject);
+            ps.setInt(1, milestoneId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                projectId = rs.getInt("projectId");
+            }
+            rs.close();
+            ps.close();
+
+            // 3. Recalculate Progress for that Project
+            if (projectId != -1) {
+                int newProgress = getProjectProgress(projectId); // Reuse your existing calculation method
+
+                // 4. SAVE the new progress to the PROJECT table
+                String sqlSaveProgress = "UPDATE PROJECT SET progress = ? WHERE projectId = ?";
+                ps = con.prepareStatement(sqlSaveProgress);
+                ps.setInt(1, newProgress);
+                ps.setInt(2, projectId);
+                ps.executeUpdate();
+                
+                // Optional: If progress is 100, automatically set status to 'Completed' (matches your previous request)
+                if (newProgress == 100) {
+                     String sqlComplete = "UPDATE PROJECT SET project_status = 'Completed' WHERE projectId = ?";
+                     PreparedStatement psComp = con.prepareStatement(sqlComplete);
+                     psComp.setInt(1, projectId);
+                     psComp.executeUpdate();
+                     psComp.close();
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Close connection manually if not using try-with-resources in this block
+            try { if (con != null) con.close(); } catch (Exception e) {}
+        }
     }
 
     // --- NEW: Count TOTAL Milestones for a Project (All Weeks) ---

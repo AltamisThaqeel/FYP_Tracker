@@ -24,7 +24,6 @@ public class StudentFeedbackServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Account user = (Account) session.getAttribute("user");
 
-        // Security Check
         if (user == null || !"Student".equals(user.getRoleType())) {
             response.sendRedirect("login.jsp");
             return;
@@ -33,13 +32,10 @@ public class StudentFeedbackServlet extends HttpServlet {
         ProjectDAO pDao = new ProjectDAO();
         FeedbackDAO fDao = new FeedbackDAO();
 
-        // 1. Find the studentId and their project
         int studentId = pDao.getStudentIdByAccount(user.getAccountId());
         Project project = pDao.getProjectByStudent(studentId);
 
         if (project != null) {
-            // 2. Fetch all feedback for this project
-            // Note: You may need to add a getAllFeedback method to your DAO
             List<Feedback> feedbackList = fDao.getAllFeedbackByProject(project.getProjectId());
             request.setAttribute("feedbackList", feedbackList);
         }
@@ -47,11 +43,10 @@ public class StudentFeedbackServlet extends HttpServlet {
         if ("markRead".equals(action)) {
             int fbId = Integer.parseInt(request.getParameter("id"));
             fDao.markAsRead(fbId);
-            response.setStatus(200); // Return success to the JavaScript fetch
+            response.setStatus(200); 
             return;
         }
 
-        // 3. Forward to the JSP
         request.getRequestDispatcher("student/feedback.jsp").forward(request, response);
     }
 }
