@@ -10,6 +10,7 @@
         <title>Supervisor Dashboard - FYP Tracker</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
         <style>
             body {
                 background-color: #F8F9FA;
@@ -71,7 +72,7 @@
                 <a href="${pageContext.request.contextPath}/SupervisorDashboardServlet" class="nav-link active bg-primary text-white rounded"><i class="bi bi-grid-fill me-2"></i> Dashboard</a>
                 <a href="${pageContext.request.contextPath}/StudentListServlet" class="nav-link text-secondary"><i class="bi bi-people-fill me-2"></i> Student Project</a>
                 <a href="${pageContext.request.contextPath}/SupervisorMilestoneServlet" class="nav-link text-secondary"><i class="bi bi-list-check me-2"></i> Track Milestone</a>
-                <a href="${pageContext.request.contextPath}/ProfileServlet" class="nav-link text-secondary"><i class="bi bi-person-fill me-2"></i> Profile</a>
+                <a href="${pageContext.request.contextPath}/profile.jsp" class="nav-link text-secondary"><i class="bi bi-person-fill me-2"></i> Profile</a>
                 <a href="${pageContext.request.contextPath}/logout.jsp" class="nav-link text-danger border-top pt-3 mt-4"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
             </nav>
         </div>
@@ -83,7 +84,10 @@
                 <div class="col-md-3">
                     <div class="stat-card">
                         <div class="d-flex justify-content-between align-items-start">
-                            <div><h6 class="text-muted small fw-bold">Active Students</h6><h2 class="mb-0 fw-bold text-dark">${totalStudents}</h2></div>
+                            <div>
+                                <h6 class="text-muted text-uppercase small fw-bold">Active Students</h6>
+                                <h2 class="mb-0 fw-bold text-dark">${totalStudents}</h2>
+                            </div>
                             <div class="bg-primary bg-opacity-10 p-2 rounded text-primary"><i class="bi bi-people-fill fs-4"></i></div>
                         </div>
                     </div>
@@ -91,7 +95,10 @@
                 <div class="col-md-3">
                     <div class="stat-card">
                         <div class="d-flex justify-content-between align-items-start">
-                            <div><h6 class="text-muted small fw-bold">Completed Projects</h6><h2 class="mb-0 fw-bold text-success">${completedProjects}</h2></div>
+                            <div>
+                                <h6 class="text-muted text-uppercase small fw-bold">Completed Projects</h6>
+                                <h2 class="mb-0 fw-bold text-success">${completedProjects}</h2>
+                            </div>
                             <div class="bg-success bg-opacity-10 p-2 rounded text-success"><i class="bi bi-trophy-fill fs-4"></i></div>
                         </div>
                     </div>
@@ -99,7 +106,10 @@
                 <div class="col-md-3">
                     <div class="stat-card">
                         <div class="d-flex justify-content-between align-items-start">
-                            <div><h6 class="text-muted small fw-bold">Due This Week</h6><h2 class="mb-0 fw-bold text-warning">${weekMilestones}</h2></div>
+                            <div>
+                                <h6 class="text-muted text-uppercase small fw-bold">Due This Week</h6>
+                                <h2 class="mb-0 fw-bold text-warning">${weekMilestones}</h2>
+                            </div>
                             <div class="bg-warning bg-opacity-10 p-2 rounded text-warning"><i class="bi bi-calendar-event-fill fs-4"></i></div>
                         </div>
                     </div>
@@ -107,7 +117,10 @@
                 <div class="col-md-3">
                     <div class="stat-card">
                         <div class="d-flex justify-content-between align-items-start">
-                            <div><h6 class="text-muted small fw-bold">Total Milestones</h6><h2 class="mb-0 fw-bold text-info">${totalMilestones}</h2></div>
+                            <div>
+                                <h6 class="text-muted text-uppercase small fw-bold">Total Milestones</h6>
+                                <h2 class="mb-0 fw-bold text-info">${totalMilestones}</h2>
+                            </div>
                             <div class="bg-info bg-opacity-10 p-2 rounded text-info"><i class="bi bi-list-check fs-4"></i></div>
                         </div>
                     </div>
@@ -131,19 +144,22 @@
                             </thead>
                             <tbody>
                                 <%
+                                    // 1. Get Data from Servlet
                                     List<Project> list = (List<Project>) request.getAttribute("projectList");
                                     List<Account> studentList = (List<Account>) request.getAttribute("studentList");
 
-                                    if(list != null && !list.isEmpty()) {
-                                        for(Project p : list) {
+                                    // 2. Check if list is valid
+                                    if (list != null && !list.isEmpty()) {
+
+                                        // 3. Loop through projects
+                                        for (Project p : list) {
                                             String statusClass = "Completed".equalsIgnoreCase(p.getStatus()) ? "bg-completed" : "bg-active";
 
-                                            // --- MANUAL NAME LOOKUP ---
-                                            String studentName = "ID: " + p.getStudentId();
-                                            if(studentList != null) {
-                                                for(Account s : studentList) {
-                                                    // Note: getAccountId here holds the StudentID due to DAO logic
-                                                    if(s.getAccountId() == p.getStudentId()) {
+                                            // 4. Manual Name Lookup
+                                            String studentName = "Unknown (ID: " + p.getStudentId() + ")";
+                                            if (studentList != null) {
+                                                for (Account s : studentList) {
+                                                    if (s.getAccountId() == p.getStudentId()) {
                                                         studentName = s.getFullName();
                                                         break;
                                                     }
@@ -165,11 +181,13 @@
                                     <td><span class="status-badge <%= statusClass %>"><%= p.getStatus() %></span></td>
                                 </tr>
                                 <%
-                                        }
-                                    } else {
+                                        } // End for loop
+                                    } else { // Else for if(list != null)
                                 %>
                                 <tr><td colspan="4" class="text-center py-4 text-muted">No active students found.</td></tr>
-                                <% } %>
+                                <%
+                                    } // End else
+                                %>
                             </tbody>
                         </table>
                     </div>

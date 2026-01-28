@@ -28,30 +28,51 @@ public class SupervisorFeedbackServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Account user = (Account) session.getAttribute("user");
 
-        // 1. Retrieve data
-        String content = request.getParameter("feedbackContent");
-        int projectId = Integer.parseInt(request.getParameter("projectId"));
-        int weekNumber = Integer.parseInt(request.getParameter("week"));
-        // We need studentId to redirect back correctly
-        String studentId = request.getParameter("studentId");
+        // Security Check
+        if (user == null || !user.getRoleType().equalsIgnoreCase("Supervisor")) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
 
-        SupervisorDAO sDao = new SupervisorDAO();
-        int supervisorId = sDao.getSupervisorId(user.getAccountId());
+        try {
+            // 1. Retrieve data
+            String content = request.getParameter("feedbackContent");
+            String projectIdStr = request.getParameter("projectId");
+            String weekStr = request.getParameter("week");
+            String studentId = request.getParameter("studentId");
 
-        // 2. Create Object
-        Feedback f = new Feedback();
-        f.setContent(content);
-        f.setProjectId(projectId);
-        f.setWeekNumber(weekNumber);
-        f.setDateGiven(Date.valueOf(LocalDate.now()));
-        f.setSupervisorId(supervisorId);
+            if (projectIdStr != null && weekStr != null && content != null) {
+                int projectId = Integer.parseInt(projectIdStr);
+                int weekNumber = Integer.parseInt(weekStr);
 
-        // 3. Save (Upsert)
-        FeedbackDAO dao = new FeedbackDAO();
-        dao.saveOrUpdateFeedback(f);
+                SupervisorDAO sDao = new SupervisorDAO();
+                int supervisorId = sDao.getSupervisorId(user.getAccountId());
 
-        // 4. Redirect Back with Success Message
-        response.sendRedirect(request.getContextPath()
-                + "/SupervisorMilestoneServlet?studentId=" + studentId + "&week=" + weekNumber + "&alert=success");
+                // 2. Create Object & Save
+                Feedback f = new Feedback();
+                f.setContent(content);
+                f.setProjectId(projectId);
+                f.setWeekNumber(weekNumber);
+                f.setDateGiven(Date.valueOf(LocalDate.now()));
+                f.setSupervisorId(supervisorId);
+
+                FeedbackDAO dao = new FeedbackDAO();
+                dao.saveOrUpdateFeedback(f);
+
+                // 3. Redirect Back with Success Message & CORRECT PROJECT ID
+                response.sendRedirect(request.getContextPath()
+                        + "/SupervisorMilestoneServlet?studentId=" + studentId
+                        + "&projectId=" + projectId
+                        + "&week=" + weekNumber
+                        + "&alert=success");
+            } else {
+
+                response.sendRedirect(request.getContextPath() + "/SupervisorDashboardServlet");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/SupervisorDashboardServlet?error=true");
+        }
     }
 }

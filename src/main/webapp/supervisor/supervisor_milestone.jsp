@@ -11,6 +11,7 @@
     <head>
         <meta charset="UTF-8">
         <title>Track Milestone</title>
+
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
@@ -20,6 +21,7 @@
                 background-color: #f3f4f6;
                 font-family: 'Segoe UI', sans-serif;
             }
+            /* Sidebar Z-Index is 100 */
             .sidebar {
                 width: 250px;
                 height: 100vh;
@@ -27,11 +29,19 @@
                 background: white;
                 border-right: 1px solid #eee;
                 padding: 20px;
+                z-index: 100;
             }
             .main-content {
                 margin-left: 250px;
                 padding: 30px;
             }
+
+            /* --- CRITICAL FIX: Make Toast Z-Index Higher than Sidebar (9999) --- */
+            .toast-container {
+                z-index: 9999 !important;
+            }
+
+            /* Other styles */
             .nav-link {
                 padding: 10px 15px;
                 font-weight: 500;
@@ -97,7 +107,6 @@
                     window.location.href = "SupervisorMilestoneServlet?studentId=" + studentId;
             }
 
-            // --- NEW: Switch Project for Same Student ---
             function changeProject(projectId) {
                 const studentId = "<%= (request.getAttribute("selectedProject") != null) ? ((Project)request.getAttribute("selectedProject")).getStudentId() : "" %>";
                 if (studentId && projectId) {
@@ -112,9 +121,34 @@
                     window.location.href = "SupervisorMilestoneServlet?studentId=" + studentId + "&projectId=" + projectId + "&week=" + week;
                 }
             }
+
+            // --- FIXED TOAST SCRIPT ---
+            window.onload = function () {
+                // Check URL for alert=success
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('alert') === 'success') {
+                    console.log("Success parameter found. Showing toast."); // Check browser console
+                    const toastEl = document.getElementById('successToast');
+                    if (toastEl) {
+                        const toast = new bootstrap.Toast(toastEl);
+                        toast.show();
+                    }
+                }
+            }
         </script>
     </head>
     <body>
+
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body fs-6">
+                        <i class="bi bi-check-circle-fill me-2"></i> Feedback sent successfully!
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
 
         <div class="sidebar">
             <div class="sidebar-brand text-primary fw-bold mb-4 fs-5">
@@ -124,7 +158,7 @@
                 <a href="${pageContext.request.contextPath}/SupervisorDashboardServlet" class="nav-link text-secondary"><i class="bi bi-grid-fill me-2"></i> Dashboard</a>
                 <a href="${pageContext.request.contextPath}/StudentListServlet" class="nav-link text-secondary"><i class="bi bi-people-fill me-2"></i> Student Project</a>
                 <a href="${pageContext.request.contextPath}/SupervisorMilestoneServlet" class="nav-link active bg-primary text-white rounded"><i class="bi bi-list-check me-2"></i> Track Milestone</a>
-                <a href="${pageContext.request.contextPath}/ProfileServlet" class="nav-link text-secondary"><i class="bi bi-person-fill me-2"></i> Profile</a>
+                <a href="${pageContext.request.contextPath}/profile.jsp" class="nav-link text-secondary"><i class="bi bi-person-fill me-2"></i> Profile</a>
                 <a href="${pageContext.request.contextPath}/logout.jsp" class="nav-link text-danger border-top pt-3 mt-4"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
             </nav>
         </div>
@@ -182,7 +216,6 @@
                             <label class="small text-muted mb-1">Current Project:</label>
                             <select class="form-select form-select-sm" onchange="changeProject(this.value)">
                                 <%
-                                    // Populate dropdown with this student's projects
                                     List<Project> studentProjects = (List<Project>) request.getAttribute("studentProjects");
                                     if(studentProjects != null) {
                                         for(Project sp : studentProjects) {
